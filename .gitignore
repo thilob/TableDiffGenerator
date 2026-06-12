@@ -3,4 +3,10 @@
 __pycache__/
 *.py[cod]
 .DS_Store
+.venv/
+build/
+dist/
+*.tar.gz
+*.zip
+*.sha256
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import html
 import re
+import sys
 import tkinter as tk
 import webbrowser
 from collections import Counter, OrderedDict
@@ -12,6 +13,17 @@ from html.parser import HTMLParser
 from tkinter import filedialog, messagebox, ttk
 from pathlib import Path
 from typing import Iterable
+
+
+APP_NAME = "TableDiffGenerator"
+APP_VERSION = "0.2.0"
+DEFAULT_TABLE_MARKER = "Codeplug\\"
+
+
+class HelpOnErrorParser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        self.print_help(sys.stderr)
+        self.exit(2, f"\nFehler: {message}\n")
 
 
 @dataclass
@@ -288,10 +300,16 @@ def render_row(key: str, values: list[str | None]) -> str:
     return "".join(cells)
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Vergleicht bis zu vier HTML-Dateien mit Codeplug-Key/Value-Tabellen."
+def create_parser() -> argparse.ArgumentParser:
+    parser = HelpOnErrorParser(
+        description="Vergleicht bis zu vier HTML-Dateien mit Key/Value-Tabellen.",
+        epilog=(
+            "Ohne Kommandozeilenparameter startet die GUI.\n"
+            "Beispiel CLI: python3 compare_codeplug_html.py file1.html file2.html -o vergleich.html"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.add_argument("--version", action="version", version=f"{APP_NAME} {APP_VERSION}")
     parser.add_argument("files", nargs="*", type=Path, help="HTML-Dateien, die verglichen werden sollen")
     parser.add_argument(
         "-o",
@@ -303,18 +321,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-m",
         "--table-marker",
-        default="Codeplug\\",
+        default=DEFAULT_TABLE_MARKER,
         help=r"Suchbegriff fuer relevante Tabellenueberschriften (Standard: Codeplug\)",
     )
-    return parser.parse_args()
+    return parser
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    return create_parser().parse_args(argv)
 
 
 class TableDiffGui:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
-        self.root.title("TableDiffGenerator")
+        self.root.title(f"{APP_NAME} {APP_VERSION}")
         self.file_vars = [tk.StringVar() for _ in range(4)]
-        self.marker_var = tk.StringVar(value="Codeplug\\")
+        self.marker_var = tk.StringVar(value=DEFAULT_TABLE_MARKER)
         self.output_var = tk.StringVar(value=str(Path.cwd() / "tablediff_report.html"))
         self.open_report_var = tk.BooleanVar(value=True)
         self.status_var = tk.StringVar(value="Bitte 1 bis 4 HTML-Dateien auswaehlen.")
@@ -424,21 +446,26 @@ def run_gui() -> int:
     return 0
 
 
-def main() -> int:
-    args = parse_args()
-    if not args.files:
+def main(argv: list[str] | None = None) -> int:
+    if argv is None:
+        argv = sys.argv[1:]
+
+    if not argv:
         return run_gui()
 
+    parser = create_parser()
+    args = parser.parse_args(argv)
+
     if not 1 <= len(args.files) <= 4:
-        raise SystemExit("Bitte 1 bis 4 HTML-Dateien angeben.")
+        parser.error("Bitte 1 bis 4 HTML-Dateien angeben.")
 
     missing_files = [path for path in args.files if not path.is_file()]
     if missing_files:
         missing = ", ".join(str(path) for path in missing_files)
-        raise SystemExit(f"Datei nicht gefunden: {missing}")
+        parser.error(f"Datei nicht gefunden: {missing}")
 
     if not args.table_marker:
-        raise SystemExit("Der Tabellen-Suchbegriff darf nicht leer sein.")
+        parser.error("Der Tabellen-Suchbegriff darf nicht leer sein.")
 
     build_report(args.files, args.output, args.table_marker)
     print(f"Report geschrieben: {args.output}")

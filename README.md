@@ -4,6 +4,8 @@ TableDiffGenerator vergleicht bis zu vier HTML-Dateien, die Key/Value-Tabellen e
 
 Das Tool ist fuer exportierte Tabellenberichte gedacht, bei denen relevante Tabellen an einer gemeinsamen Ueberschrift erkannt werden. Standardmaessig sucht es nach Tabellenueberschriften mit `Codeplug\\`.
 
+Aktuelle Programmversion: `0.2.0`
+
 ## Funktionen
 
 - Vergleich von 1 bis 4 HTML-Dateien
@@ -36,6 +38,10 @@ Die Kommandozeile bleibt weiterhin nutzbar:
 python3 compare_codeplug_html.py file1.html file2.html -o vergleich.html
 ```
 
+Sobald Kommandozeilenparameter uebergeben werden, wird die GUI nicht gestartet.
+Fehlerhafte oder unvollstaendige Parameter geben eine Hilfeseite mit
+Fehlermeldung aus.
+
 Bis zu vier Dateien sind moeglich:
 
 ```bash
@@ -54,9 +60,52 @@ Kurzform:
 python3 compare_codeplug_html.py file1.html file2.html -m "Codeplug\\" -o vergleich.html
 ```
 
+Versionsausgabe:
+
+```bash
+python3 compare_codeplug_html.py --version
+```
+
+## Release-Builds
+
+Die Release-Builds werden mit PyInstaller als `--onedir`-Bundle gebaut.
+
+### Linux
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt pyinstaller
+./build-pyinstaller.sh
+./dist/tablediffgenerator/tablediffgenerator --version
+```
+
+### Windows
+
+```bat
+python -m venv .venv
+.venv\Scripts\pip install --upgrade pip
+.venv\Scripts\pip install -r requirements.txt pyinstaller
+build-windows.bat
+dist\tablediffgenerator\tablediffgenerator.exe --version
+```
+
+### GitHub Actions
+
+Der Workflow `.github/workflows/build-release-assets.yml` kann manuell gestartet
+werden und erzeugt Linux- und Windows-Archive inklusive SHA256-Dateien.
+
+Neue Releases sollen die Versionsnummer in `compare_codeplug_html.py` erhoehen:
+
+```python
+APP_VERSION = "0.2.0"
+```
+
+Weitere Details stehen in `RELEASE.md`.
+
 ## Hinweise
 
-Die Eingabe-HTML-Dateien und erzeugten Reports werden nicht versioniert. Die `.gitignore` schliesst `*.html` und `*.htm` aus.
+Die Eingabe-HTML-Dateien und erzeugten Reports werden nicht versioniert. Die `.gitignore` schliesst `*.html` und `*.htm` aus. Build-Artefakte wie `dist/`, `build/`, `*.zip` und `*.tar.gz` werden ebenfalls ignoriert.
 
 ## Lizenz
 
