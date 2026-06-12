@@ -17,9 +17,20 @@ Das Tool ist fuer exportierte Tabellenberichte gedacht, bei denen relevante Tabe
 - Inhaltsverzeichnis mit Suchfunktion
 - Schaltflaechen zum Auf- und Zuklappen aller Tabellen
 - Navigation zurueck zum Dateianfang pro Tabelle
+- einfache GUI fuer Linux und Windows
 - keine externen Python-Abhaengigkeiten
 
 ## Nutzung
+
+Ohne Kommandozeilenargumente startet die GUI:
+
+```bash
+python3 compare_codeplug_html.py
+```
+
+In der GUI koennen bis zu vier HTML-Dateien ausgewaehlt werden. Der Tabellen-Suchbegriff ist mit `Codeplug\\` vorbelegt und kann angepasst werden. Nach dem Start des Vergleichs wird der Report erzeugt und, wenn moeglich, ueber die Betriebssystemfunktionen im Standardbrowser geoeffnet.
+
+Die Kommandozeile bleibt weiterhin nutzbar:
 
 ```bash
 python3 compare_codeplug_html.py file1.html file2.html -o vergleich.html

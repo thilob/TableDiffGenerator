@@ -4,9 +4,12 @@ from __future__ import annotations
 import argparse
 import html
 import re
+import tkinter as tk
+import webbrowser
 from collections import Counter, OrderedDict
 from dataclasses import dataclass
 from html.parser import HTMLParser
+from tkinter import filedialog, messagebox, ttk
 from pathlib import Path
 from typing import Iterable
 
@@ -289,7 +292,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Vergleicht bis zu vier HTML-Dateien mit Codeplug-Key/Value-Tabellen."
     )
-    parser.add_argument("files", nargs="+", type=Path, help="HTML-Dateien, die verglichen werden sollen")
+    parser.add_argument("files", nargs="*", type=Path, help="HTML-Dateien, die verglichen werden sollen")
     parser.add_argument(
         "-o",
         "--output",
@@ -306,8 +309,126 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+class TableDiffGui:
+    def __init__(self, root: tk.Tk) -> None:
+        self.root = root
+        self.root.title("TableDiffGenerator")
+        self.file_vars = [tk.StringVar() for _ in range(4)]
+        self.marker_var = tk.StringVar(value="Codeplug\\")
+        self.output_var = tk.StringVar(value=str(Path.cwd() / "tablediff_report.html"))
+        self.open_report_var = tk.BooleanVar(value=True)
+        self.status_var = tk.StringVar(value="Bitte 1 bis 4 HTML-Dateien auswaehlen.")
+        self._build()
+
+    def _build(self) -> None:
+        self.root.columnconfigure(0, weight=1)
+        frame = ttk.Frame(self.root, padding=14)
+        frame.grid(row=0, column=0, sticky="nsew")
+        frame.columnconfigure(1, weight=1)
+
+        ttk.Label(frame, text="HTML-Dateien").grid(row=0, column=0, columnspan=3, sticky="w")
+        for index, file_var in enumerate(self.file_vars, start=1):
+            row = index
+            ttk.Label(frame, text=f"Datei {index}").grid(row=row, column=0, sticky="w", pady=3)
+            ttk.Entry(frame, textvariable=file_var).grid(row=row, column=1, sticky="ew", padx=8, pady=3)
+            ttk.Button(frame, text="Auswaehlen", command=lambda i=index - 1: self._select_input(i)).grid(
+                row=row, column=2, sticky="ew", pady=3
+            )
+
+        marker_row = 5
+        ttk.Label(frame, text="Tabellen-Suchbegriff").grid(row=marker_row, column=0, sticky="w", pady=(12, 3))
+        ttk.Entry(frame, textvariable=self.marker_var).grid(
+            row=marker_row, column=1, columnspan=2, sticky="ew", padx=(8, 0), pady=(12, 3)
+        )
+
+        output_row = 6
+        ttk.Label(frame, text="Ausgabedatei").grid(row=output_row, column=0, sticky="w", pady=3)
+        ttk.Entry(frame, textvariable=self.output_var).grid(row=output_row, column=1, sticky="ew", padx=8, pady=3)
+        ttk.Button(frame, text="Speichern unter", command=self._select_output).grid(
+            row=output_row, column=2, sticky="ew", pady=3
+        )
+
+        ttk.Checkbutton(
+            frame,
+            text="Report nach dem Erzeugen oeffnen",
+            variable=self.open_report_var,
+        ).grid(row=7, column=0, columnspan=3, sticky="w", pady=(8, 3))
+
+        action_frame = ttk.Frame(frame)
+        action_frame.grid(row=8, column=0, columnspan=3, sticky="ew", pady=(12, 3))
+        action_frame.columnconfigure(0, weight=1)
+        ttk.Button(action_frame, text="Vergleich starten", command=self._run_compare).grid(row=0, column=1)
+        ttk.Button(action_frame, text="Beenden", command=self.root.destroy).grid(row=0, column=2, padx=(8, 0))
+
+        ttk.Label(frame, textvariable=self.status_var).grid(row=9, column=0, columnspan=3, sticky="w", pady=(8, 0))
+
+    def _select_input(self, index: int) -> None:
+        filename = filedialog.askopenfilename(
+            title="HTML-Datei auswaehlen",
+            filetypes=[("HTML-Dateien", "*.html *.htm"), ("Alle Dateien", "*.*")],
+        )
+        if filename:
+            self.file_vars[index].set(filename)
+            if index == 0:
+                self.output_var.set(str(Path(filename).with_name("tablediff_report.html")))
+
+    def _select_output(self) -> None:
+        filename = filedialog.asksaveasfilename(
+            title="Vergleichsreport speichern",
+            defaultextension=".html",
+            initialfile=Path(self.output_var.get()).name,
+            filetypes=[("HTML-Dateien", "*.html"), ("Alle Dateien", "*.*")],
+        )
+        if filename:
+            self.output_var.set(filename)
+
+    def _run_compare(self) -> None:
+        input_files = [Path(file_var.get()) for file_var in self.file_vars if file_var.get().strip()]
+        table_marker = self.marker_var.get()
+        output_file = Path(self.output_var.get())
+
+        if not 1 <= len(input_files) <= 4:
+            messagebox.showerror("Fehler", "Bitte 1 bis 4 HTML-Dateien auswaehlen.")
+            return
+
+        if not table_marker:
+            messagebox.showerror("Fehler", "Der Tabellen-Suchbegriff darf nicht leer sein.")
+            return
+
+        missing_files = [path for path in input_files if not path.is_file()]
+        if missing_files:
+            messagebox.showerror("Fehler", "Datei nicht gefunden:\n" + "\n".join(str(path) for path in missing_files))
+            return
+
+        try:
+            self.status_var.set("Vergleich wird erzeugt ...")
+            self.root.update_idletasks()
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            build_report(input_files, output_file, table_marker)
+        except Exception as error:
+            self.status_var.set("Fehler beim Erzeugen des Reports.")
+            messagebox.showerror("Fehler", str(error))
+            return
+
+        self.status_var.set(f"Report geschrieben: {output_file}")
+        if self.open_report_var.get():
+            opened = webbrowser.open(output_file.resolve().as_uri())
+            if not opened:
+                messagebox.showinfo("Report erzeugt", f"Report wurde erzeugt:\n{output_file}")
+
+
+def run_gui() -> int:
+    root = tk.Tk()
+    TableDiffGui(root)
+    root.mainloop()
+    return 0
+
+
 def main() -> int:
     args = parse_args()
+    if not args.files:
+        return run_gui()
+
     if not 1 <= len(args.files) <= 4:
         raise SystemExit("Bitte 1 bis 4 HTML-Dateien angeben.")
 
