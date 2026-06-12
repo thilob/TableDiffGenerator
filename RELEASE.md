@@ -16,10 +16,9 @@ Empfohlenes Tag-Schema: `v0.2.0`.
 
 ## Lokaler Linux-Build
 
+Eine ausfuehrliche Anleitung fuer ungeuebte Nutzer steht in `BUILD.md`.
+
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install --upgrade pip
-.venv/bin/pip install -r requirements.txt pyinstaller
 ./build-pyinstaller.sh
 ./dist/tablediffgenerator/tablediffgenerator --version
 ```
@@ -33,9 +32,6 @@ Der Start ohne Kommandozeilenparameter oeffnet die GUI:
 ## Lokaler Windows-Build
 
 ```bat
-python -m venv .venv
-.venv\Scripts\pip install --upgrade pip
-.venv\Scripts\pip install -r requirements.txt pyinstaller
 build-windows.bat
 dist\tablediffgenerator\tablediffgenerator.exe --version
 ```
@@ -54,4 +50,3 @@ Der Workflow wird manuell gestartet und erwartet eine Version ohne fuehrendes
 
 Die HTML-Eingabedateien und erzeugten Reports werden nicht in Releases
 mitverpackt.
-

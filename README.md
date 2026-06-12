@@ -103,6 +103,9 @@ APP_VERSION = "0.2.0"
 
 Weitere Details stehen in `RELEASE.md`.
 
+Eine ausfuehrliche Anleitung fuer lokale Builds unter Linux und Windows steht
+in `BUILD.md`.
+
 ## Hinweise
 
 Die Eingabe-HTML-Dateien und erzeugten Reports werden nicht versioniert. Die `.gitignore` schliesst `*.html` und `*.htm` aus. Build-Artefakte wie `dist/`, `build/`, `*.zip` und `*.tar.gz` werden ebenfalls ignoriert.
