@@ -2,10 +2,10 @@
 
 Aktuelle Version: `0.2.0`
 
-## Versionsnummer erhoehen
+## Versionsnummer erhöhen
 
 Vor einem neuen Release die zentrale Versionsnummer in `compare_codeplug_html.py`
-erhoehen:
+erhöhen:
 
 ```python
 APP_VERSION = "0.2.0"
@@ -16,14 +16,14 @@ Empfohlenes Tag-Schema: `v0.2.0`.
 
 ## Lokaler Linux-Build
 
-Eine ausfuehrliche Anleitung fuer ungeuebte Nutzer steht in `BUILD.md`.
+Eine ausführliche Anleitung für ungeübte Nutzer steht in `BUILD.md`.
 
 ```bash
 ./build-pyinstaller.sh
 ./dist/tablediffgenerator/tablediffgenerator --version
 ```
 
-Der Start ohne Kommandozeilenparameter oeffnet die GUI:
+Der Start ohne Kommandozeilenparameter öffnet die GUI:
 
 ```bash
 ./dist/tablediffgenerator/tablediffgenerator
@@ -40,7 +40,7 @@ dist\tablediffgenerator\tablediffgenerator.exe --version
 
 Workflow: `.github/workflows/build-release-assets.yml`
 
-Der Workflow wird manuell gestartet und erwartet eine Version ohne fuehrendes
+Der Workflow wird manuell gestartet und erwartet eine Version ohne führendes
 `v`, z. B. `0.2.0`. Er erzeugt:
 
 - `tablediffgenerator-linux-v<VERSION>.tar.gz`

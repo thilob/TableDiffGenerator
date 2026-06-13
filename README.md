@@ -2,7 +2,7 @@
 
 TableDiffGenerator vergleicht bis zu vier HTML-Dateien, die Key/Value-Tabellen enthalten, und erzeugt daraus einen HTML-Vergleichsreport.
 
-Das Tool ist fuer exportierte Tabellenberichte gedacht, bei denen relevante Tabellen an einer gemeinsamen Ueberschrift erkannt werden. Standardmaessig sucht es nach Tabellenueberschriften mit `Codeplug\\`.
+Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabellen an einer gemeinsamen Überschrift erkannt werden. Standardmaessig sucht es nach Tabellenüberschriften mit `Codeplug\\`.
 
 Aktuelle Programmversion: `0.2.0`
 
@@ -12,15 +12,15 @@ Aktuelle Programmversion: `0.2.0`
 - automatische Erkennung relevanter Tabellen per Suchbegriff
 - gemeinsame Darstellung gleicher Tabellen nebeneinander
 - farbliche Markierung:
-  - hellgruen fuer gleiche Werte
-  - orange fuer abweichende Werte
-  - rot fuer fehlende Tabellen oder Keys
+  - hellgrün für gleiche Werte
+  - orange für abweichende Werte
+  - rot für fehlende Tabellen oder Keys
 - einklappbare Tabellen im Report
 - Inhaltsverzeichnis mit Suchfunktion
-- Schaltflaechen zum Auf- und Zuklappen aller Tabellen
-- Navigation zurueck zum Dateianfang pro Tabelle
-- einfache GUI fuer Linux und Windows
-- keine externen Python-Abhaengigkeiten
+- Schaltflächen zum Auf- und Zuklappen aller Tabellen
+- Navigation zurück zum Dateianfang pro Tabelle
+- einfache GUI für Linux und Windows
+- keine externen Python-Abhängigkeiten
 
 ## Nutzung
 
@@ -30,7 +30,7 @@ Ohne Kommandozeilenargumente startet die GUI:
 python3 compare_codeplug_html.py
 ```
 
-In der GUI koennen bis zu vier HTML-Dateien ausgewaehlt werden. Der Tabellen-Suchbegriff ist mit `Codeplug\\` vorbelegt und kann angepasst werden. Nach dem Start des Vergleichs wird der Report erzeugt und, wenn moeglich, ueber die Betriebssystemfunktionen im Standardbrowser geoeffnet.
+In der GUI können bis zu vier HTML-Dateien ausgewählt werden. Der Tabellen-Suchbegriff ist mit `Codeplug\\` vorbelegt und kann angepasst werden. Nach dem Start des Vergleichs wird der Report erzeugt und, wenn möglich, über die Betriebssystemfunktionen im Standardbrowser geöffnet.
 
 Die Kommandozeile bleibt weiterhin nutzbar:
 
@@ -38,11 +38,11 @@ Die Kommandozeile bleibt weiterhin nutzbar:
 python3 compare_codeplug_html.py file1.html file2.html -o vergleich.html
 ```
 
-Sobald Kommandozeilenparameter uebergeben werden, wird die GUI nicht gestartet.
-Fehlerhafte oder unvollstaendige Parameter geben eine Hilfeseite mit
+Sobald Kommandozeilenparameter übergeben werden, wird die GUI nicht gestartet.
+Fehlerhafte oder unvollständige Parameter geben eine Hilfeseite mit
 Fehlermeldung aus.
 
-Bis zu vier Dateien sind moeglich:
+Bis zu vier Dateien sind möglich:
 
 ```bash
 python3 compare_codeplug_html.py file1.html file2.html file3.html file4.html -o vergleich.html
@@ -95,7 +95,7 @@ dist\tablediffgenerator\tablediffgenerator.exe --version
 Der Workflow `.github/workflows/build-release-assets.yml` kann manuell gestartet
 werden und erzeugt Linux- und Windows-Archive inklusive SHA256-Dateien.
 
-Neue Releases sollen die Versionsnummer in `compare_codeplug_html.py` erhoehen:
+Neue Releases sollen die Versionsnummer in `compare_codeplug_html.py` erhöhen:
 
 ```python
 APP_VERSION = "0.2.0"
@@ -103,12 +103,12 @@ APP_VERSION = "0.2.0"
 
 Weitere Details stehen in `RELEASE.md`.
 
-Eine ausfuehrliche Anleitung fuer lokale Builds unter Linux und Windows steht
+Eine ausführliche Anleitung für lokale Builds unter Linux und Windows steht
 in `BUILD.md`.
 
 ## Hinweise
 
-Die Eingabe-HTML-Dateien und erzeugten Reports werden nicht versioniert. Die `.gitignore` schliesst `*.html` und `*.htm` aus. Build-Artefakte wie `dist/`, `build/`, `*.zip` und `*.tar.gz` werden ebenfalls ignoriert.
+Die Eingabe-HTML-Dateien und erzeugten Reports werden nicht versioniert. Die `.gitignore` schließt `*.html` und `*.htm` aus. Build-Artefakte wie `dist/`, `build/`, `*.zip` und `*.tar.gz` werden ebenfalls ignoriert.
 
 ## Lizenz
 

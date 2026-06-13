@@ -162,6 +162,29 @@ def value_class(values: list[str | None], current: str | None) -> str:
     return "different"
 
 
+def row_status(values: list[str | None]) -> str:
+    if any(value is None for value in values):
+        return "missing"
+
+    if len(set(values)) == 1:
+        return "same"
+
+    return "different"
+
+
+def status_counts(rows_per_file: list[OrderedDict[str, str]]) -> Counter[str]:
+    counts: Counter[str] = Counter()
+    keys = ordered_union(rows_per_file)
+    if not keys:
+        counts["missing"] = 1
+        return counts
+
+    for key in keys:
+        values = [rows.get(key) if key in rows else None for rows in rows_per_file]
+        counts[row_status(values)] += 1
+    return counts
+
+
 def make_anchor(title: str, index: int) -> str:
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", title).strip("-").lower()
     return f"table-{index}-{slug or 'codeplug'}"
@@ -190,7 +213,7 @@ REPORT_CSS = """
     --sapSuccessBorderColor:#188918;
     --sapWarningBackground:#fff8d6;
     --sapWarningBorderColor:#e76500;
-    --sapErrorBackground:#ffebeb;
+    --sapErrorBackground:#ffb8b8;
     --sapErrorBorderColor:#bb0000;
     --sapContent_Shadow0:0 0 0 1px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.08);
 }
@@ -317,6 +340,23 @@ h1{margin:0;color:var(--sapTextColor);font-size:26px;font-weight:400;letter-spac
 .toc-details>summary::before,.codeplug-table>summary::before{content:"\\25B8";color:var(--sapContent_LabelColor);margin-right:2px}
 .toc-details[open]>summary::before,.codeplug-table[open]>summary::before{content:"\\25BE"}
 .summary-title{flex:1;min-width:0;overflow-wrap:anywhere}
+.summary-metrics{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.summary-label{
+    display:inline-flex;
+    align-items:center;
+    min-height:24px;
+    border-radius:4px;
+    padding:2px 8px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+    cursor:pointer;
+    font-family:inherit;
+}
+.summary-label-same{background:var(--sapSuccessBackground);border:1px solid var(--sapSuccessBorderColor);color:#107e3e}
+.summary-label-different{background:var(--sapWarningBackground);border:1px solid var(--sapWarningBorderColor);color:#8a4100}
+.summary-label-missing{background:#ffcaca;border:1px solid var(--sapErrorBorderColor);color:#8f0000}
+.summary-label-active{box-shadow:0 0 0 2px var(--sapHighlightColor)}
 .top-link{
     flex:0 0 auto;
     border:1px solid transparent;
@@ -345,9 +385,6 @@ th,td{
 }
 th:last-child,td:last-child{border-right:0}
 th{
-    position:sticky;
-    top:48px;
-    z-index:1;
     background:var(--sapList_TableGroupHeaderBackground);
     color:var(--sapContent_LabelColor);
     font-weight:700;
@@ -365,7 +402,7 @@ td:first-child{font-weight:700;background:#fafafa}
     h1{font-size:22px}
     .ui5-toolbar,.toc-search{align-items:stretch}
     .ui5-button,.ui5-input{width:100%}
-    th{top:48px}
+    .summary-metrics{width:100%;order:3}
 }
 """
 
@@ -392,6 +429,19 @@ function clearTocSearch(){
     document.getElementById('toc-search').value='';
     filterToc();
     document.getElementById('toc-search').focus();
+}
+function filterTable(id,status,trigger){
+    var table=document.getElementById(id);
+    if(!table){return;}
+    var nextStatus=status;
+    if(trigger&&trigger.classList.contains('summary-label-active')){nextStatus='all';}
+    table.open=true;
+    table.querySelectorAll('tbody tr').forEach(function(row){
+        row.style.display=nextStatus==='all'||row.dataset.status===nextStatus?'':'none';
+    });
+    table.querySelectorAll('.summary-label').forEach(function(label){
+        label.classList.toggle('summary-label-active', nextStatus!=='all'&&label.dataset.status===nextStatus);
+    });
 }
 """
 
@@ -497,9 +547,16 @@ def build_report(input_files: list[Path], output_file: Path, table_marker: str) 
 
     for title in table_titles:
         anchor = html.escape(anchors[title], quote=True)
+        per_file_rows = [
+            parsed_file[title].rows if title in parsed_file else OrderedDict()
+            for parsed_file in parsed_files
+        ]
+        keys = ordered_union(per_file_rows)
+        counts = status_counts(per_file_rows)
         report_parts.append(f"<details class='codeplug-table ui5-panel' id='{anchor}'>")
         report_parts.append(
             f"<summary><span class='summary-title'>{html.escape(title)}</span>"
+            f"{render_summary_metrics(anchor, counts)}"
             "<a class='top-link' href='#top' onclick='event.stopPropagation()'>Nach oben</a></summary>"
         )
         report_parts.append("<div class='table-wrap'>")
@@ -508,18 +565,12 @@ def build_report(input_files: list[Path], output_file: Path, table_marker: str) 
         for path in input_files:
             report_parts.append(f"<th>{html.escape(path.name)}</th>")
         report_parts.append("</tr></thead><tbody>")
-
-        per_file_rows = [
-            parsed_file[title].rows if title in parsed_file else OrderedDict()
-            for parsed_file in parsed_files
-        ]
-        keys = ordered_union(per_file_rows)
         if not keys:
-            report_parts.append(render_row("Tabelle fehlt oder leer", [None] * len(input_files)))
+            report_parts.append(render_row("Tabelle fehlt oder leer", [None] * len(input_files), "missing"))
         else:
             for key in keys:
                 values = [rows.get(key) if key in rows else None for rows in per_file_rows]
-                report_parts.append(render_row(key, values))
+                report_parts.append(render_row(key, values, row_status(values)))
 
         report_parts.append("</tbody></table>")
         report_parts.append("</div>")
@@ -529,8 +580,25 @@ def build_report(input_files: list[Path], output_file: Path, table_marker: str) 
     output_file.write_text("\n".join(report_parts), encoding="utf-8")
 
 
-def render_row(key: str, values: list[str | None]) -> str:
-    cells = [f"<tr><td>{html.escape(key)}</td>"]
+def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
+    escaped_anchor = html.escape(anchor, quote=True)
+    return (
+        "<span class='summary-metrics'>"
+        f"<button type='button' class='summary-label summary-label-same' data-status='same' "
+        f"onclick=\"event.stopPropagation();filterTable('{escaped_anchor}','same',this);\">"
+        f"{counts['same']} Übereinstimmungen</button>"
+        f"<button type='button' class='summary-label summary-label-different' data-status='different' "
+        f"onclick=\"event.stopPropagation();filterTable('{escaped_anchor}','different',this);\">"
+        f"{counts['different']} Abweichungen</button>"
+        f"<button type='button' class='summary-label summary-label-missing' data-status='missing' "
+        f"onclick=\"event.stopPropagation();filterTable('{escaped_anchor}','missing',this);\">"
+        f"{counts['missing']} Fehlende</button>"
+        "</span>"
+    )
+
+
+def render_row(key: str, values: list[str | None], status: str) -> str:
+    cells = [f"<tr data-status='{html.escape(status, quote=True)}'><td>{html.escape(key)}</td>"]
     for value in values:
         css_class = value_class(values, value)
         display_value = "" if value is None else value
@@ -558,13 +626,13 @@ def create_parser() -> argparse.ArgumentParser:
         "--output",
         type=Path,
         default=Path("codeplug_vergleich.html"),
-        help="Zieldatei fuer den HTML-Report (Standard: codeplug_vergleich.html)",
+        help="Zieldatei für den HTML-Report (Standard: codeplug_vergleich.html)",
     )
     parser.add_argument(
         "-m",
         "--table-marker",
         default=DEFAULT_TABLE_MARKER,
-        help=r"Suchbegriff fuer relevante Tabellenueberschriften (Standard: Codeplug\)",
+        help=r"Suchbegriff für relevante Tabellenüberschriften (Standard: Codeplug\)",
     )
     return parser
 
@@ -587,7 +655,7 @@ class TableDiffGui:
         self.marker_var = tk.StringVar(value=DEFAULT_TABLE_MARKER)
         self.output_var = tk.StringVar(value=str(Path.cwd() / "tablediff_report.html"))
         self.open_report_var = tk.BooleanVar(value=True)
-        self.status_var = tk.StringVar(value="Bitte 1 bis 4 HTML-Dateien auswaehlen.")
+        self.status_var = tk.StringVar(value="Bitte 1 bis 4 HTML-Dateien auswählen.")
         self._configure_style()
         self._build()
         self._fit_window_to_content()
@@ -675,7 +743,7 @@ class TableDiffGui:
         ttk.Label(header, text="Codeplug Vergleich", style="Ui5Title.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(
             header,
-            text="HTML-Dateien auswaehlen und einen UI5-aehnlichen Vergleichsreport erzeugen.",
+            text="HTML-Dateien auswählen und einen UI5-ähnlichen Vergleichsreport erzeugen.",
             style="Ui5Label.TLabel",
         ).grid(row=1, column=0, sticky="w", pady=(4, 0))
 
@@ -700,7 +768,7 @@ class TableDiffGui:
             )
             ttk.Button(
                 frame,
-                text="Auswaehlen",
+                text="Auswählen",
                 style="Ui5.TButton",
                 command=lambda i=index - 1: self._select_input(i),
             ).grid(
@@ -726,7 +794,7 @@ class TableDiffGui:
 
         ttk.Checkbutton(
             frame,
-            text="Report nach dem Erzeugen oeffnen",
+            text="Report nach dem Erzeugen öffnen",
             variable=self.open_report_var,
             style="Ui5.TCheckbutton",
         ).grid(row=7, column=0, columnspan=3, sticky="w", pady=(10, 4))
@@ -768,7 +836,7 @@ class TableDiffGui:
 
     def _select_input(self, index: int) -> None:
         filename = filedialog.askopenfilename(
-            title="HTML-Datei auswaehlen",
+            title="HTML-Datei auswählen",
             filetypes=[("HTML-Dateien", "*.html *.htm"), ("Alle Dateien", "*.*")],
         )
         if filename:
@@ -792,7 +860,7 @@ class TableDiffGui:
         output_file = Path(self.output_var.get())
 
         if not 1 <= len(input_files) <= 4:
-            messagebox.showerror("Fehler", "Bitte 1 bis 4 HTML-Dateien auswaehlen.")
+            messagebox.showerror("Fehler", "Bitte 1 bis 4 HTML-Dateien auswählen.")
             return
 
         if not table_marker:

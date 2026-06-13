@@ -1,7 +1,7 @@
 # Build-Anleitung
 
 Diese Anleitung beschreibt, wie TableDiffGenerator aus dem Quellcode als
-startbares Programm gebaut werden kann. Die Schritte sind bewusst ausfuehrlich
+startbares Programm gebaut werden kann. Die Schritte sind bewusst ausführlich
 gehalten.
 
 ## Was wird gebaut?
@@ -19,16 +19,16 @@ Du brauchst:
 
 - den Quellcode von TableDiffGenerator
 - Internetzugang beim ersten Build, damit PyInstaller installiert werden kann
-- ausreichend freien Speicherplatz fuer `.venv/`, `build/` und `dist/`
+- ausreichend freien Speicherplatz für `.venv/`, `build/` und `dist/`
 
 Die Ordner `.venv/`, `build/` und `dist/` werden automatisch erzeugt und sind
-nicht fuer Git gedacht.
+nicht für Git gedacht.
 
 ## Linux
 
-### 1. Python pruefen
+### 1. Python prüfen
 
-Oeffne ein Terminal im Projektordner und pruefe Python:
+Öffne ein Terminal im Projektordner und prüfe Python:
 
 ```bash
 python3 --version
@@ -36,7 +36,7 @@ python3 --version
 
 Empfohlen ist Python 3.10 oder neuer.
 
-Falls Python oder `venv` fehlt, installiere die Pakete ueber deine
+Falls Python oder `venv` fehlt, installiere die Pakete über deine
 Linux-Distribution. Beispiele:
 
 ```bash
@@ -74,7 +74,7 @@ Nach erfolgreichem Build:
 
 Ohne Kommandozeilenparameter startet die GUI.
 
-Versionspruefung:
+Versionsprüfung:
 
 ```bash
 ./dist/tablediffgenerator/tablediffgenerator --version
@@ -93,7 +93,7 @@ Wichtig im Installer:
 - Haken bei `Add python.exe to PATH` setzen
 - danach Installation abschliessen
 
-Oeffne danach `cmd.exe` oder PowerShell und pruefe:
+Öffne danach `cmd.exe` oder PowerShell und prüfe:
 
 ```bat
 python --version
@@ -101,7 +101,7 @@ python --version
 
 Empfohlen ist Python 3.10 oder neuer.
 
-### 2. Projektordner oeffnen
+### 2. Projektordner öffnen
 
 Wechsle in der Eingabeaufforderung in den Projektordner. Beispiel:
 
@@ -109,7 +109,7 @@ Wechsle in der Eingabeaufforderung in den Projektordner. Beispiel:
 cd %USERPROFILE%\Downloads\TableDiffGenerator
 ```
 
-Der genaue Pfad haengt davon ab, wohin du den Quellcode entpackt hast.
+Der genaue Pfad hängt davon ab, wohin du den Quellcode entpackt hast.
 
 ### 3. Build starten
 
@@ -136,7 +136,7 @@ dist\tablediffgenerator\tablediffgenerator.exe
 
 Ohne Kommandozeilenparameter startet die GUI.
 
-Versionspruefung:
+Versionsprüfung:
 
 ```bat
 dist\tablediffgenerator\tablediffgenerator.exe --version
@@ -163,7 +163,7 @@ den PATH-Haken im Installer aktivieren.
 
 ### PyInstaller kann nicht installiert werden
 
-Pruefe die Internetverbindung. PyInstaller wird beim Build mit `pip` aus PyPI
+Prüfe die Internetverbindung. PyInstaller wird beim Build mit `pip` aus PyPI
 installiert.
 
 ### Das Programm startet mit GUI nicht
@@ -180,9 +180,9 @@ kann die GUI nicht angezeigt werden. Die Kommandozeile funktioniert trotzdem:
 Selbst gebaute Programme sind nicht digital signiert. Windows SmartScreen kann
 daher beim ersten Start warnen. Das ist bei lokal gebauten Programmen normal.
 
-## Aufraeumen
+## Aufräumen
 
-Wenn du neu bauen willst, kannst du diese Ordner loeschen:
+Wenn du neu bauen willst, kannst du diese Ordner löschen:
 
 - `.venv/`
 - `build/`
@@ -192,7 +192,7 @@ Danach das Buildskript erneut starten.
 
 ## Release-Assets
 
-Fuer GitHub-Releases gibt es zusaetzlich den Workflow:
+Für GitHub-Releases gibt es zusätzlich den Workflow:
 
 ```text
 .github/workflows/build-release-assets.yml
