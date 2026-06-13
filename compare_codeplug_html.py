@@ -167,79 +167,320 @@ def make_anchor(title: str, index: int) -> str:
     return f"table-{index}-{slug or 'codeplug'}"
 
 
+REPORT_CSS = """
+:root{
+    --sapBackgroundColor:#f5f6f7;
+    --sapShellColor:#354a5f;
+    --sapShell_TextColor:#fff;
+    --sapPageHeader_Background:#fff;
+    --sapObjectHeader_Background:#fff;
+    --sapGroup_ContentBackground:#fff;
+    --sapList_HeaderBackground:#f7f7f7;
+    --sapList_BorderColor:#d9d9d9;
+    --sapList_TableGroupHeaderBackground:#f2f2f2;
+    --sapTextColor:#1d2d3e;
+    --sapContent_LabelColor:#556b82;
+    --sapLinkColor:#0a6ed1;
+    --sapButton_BorderColor:#0a6ed1;
+    --sapButton_TextColor:#0a6ed1;
+    --sapButton_Hover_Background:#ebf5fe;
+    --sapHighlightColor:#0854a0;
+    --sapInformationBackground:#e5f2ff;
+    --sapSuccessBackground:#f1fdf6;
+    --sapSuccessBorderColor:#188918;
+    --sapWarningBackground:#fff8d6;
+    --sapWarningBorderColor:#e76500;
+    --sapErrorBackground:#ffebeb;
+    --sapErrorBorderColor:#bb0000;
+    --sapContent_Shadow0:0 0 0 1px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+    margin:0;
+    background:var(--sapBackgroundColor);
+    color:var(--sapTextColor);
+    font-family:"72","72full",Arial,Helvetica,sans-serif;
+    font-size:14px;
+    line-height:1.4;
+}
+a{color:var(--sapLinkColor);text-decoration:none}
+a:hover{text-decoration:underline}
+.ui5-shellbar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    min-height:48px;
+    padding:0 24px;
+    background:var(--sapShellColor);
+    color:var(--sapShell_TextColor);
+    box-shadow:0 2px 4px rgba(0,0,0,.18);
+}
+.ui5-product-switch{font-size:18px;margin-right:12px}
+.ui5-shell-title{font-size:16px;font-weight:700}
+.ui5-shell-subtitle{margin-left:12px;color:#d3dce6;font-size:13px}
+.ui5-page{max-width:1440px;margin:0 auto;padding:24px}
+.ui5-object-page-header{
+    background:var(--sapObjectHeader_Background);
+    border-bottom:1px solid var(--sapList_BorderColor);
+    box-shadow:var(--sapContent_Shadow0);
+    padding:20px 24px;
+}
+h1{margin:0;color:var(--sapTextColor);font-size:26px;font-weight:400;letter-spacing:0}
+.ui5-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ui5-subtitle{margin:6px 0 0;color:var(--sapContent_LabelColor);font-size:14px}
+.ui5-kpis{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.ui5-kpi{
+    min-width:132px;
+    padding:10px 12px;
+    background:#f7f7f7;
+    border:1px solid var(--sapList_BorderColor);
+    border-radius:4px;
+}
+.ui5-kpi-value{display:block;font-size:22px;font-weight:700;color:var(--sapHighlightColor)}
+.ui5-kpi-label{display:block;margin-top:2px;color:var(--sapContent_LabelColor);font-size:12px}
+.ui5-section{margin-top:16px}
+.ui5-panel{
+    background:var(--sapGroup_ContentBackground);
+    border:1px solid var(--sapList_BorderColor);
+    border-radius:4px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.ui5-panel-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    min-height:44px;
+    padding:0 16px;
+    background:var(--sapList_HeaderBackground);
+    border-bottom:1px solid var(--sapList_BorderColor);
+}
+.ui5-panel-title{font-size:16px;font-weight:700}
+.ui5-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px}
+.ui5-button{
+    min-height:32px;
+    border:1px solid var(--sapButton_BorderColor);
+    border-radius:4px;
+    background:#fff;
+    color:var(--sapButton_TextColor);
+    padding:6px 12px;
+    font:inherit;
+    font-weight:700;
+    cursor:pointer;
+}
+.ui5-button:hover{background:var(--sapButton_Hover_Background)}
+.ui5-button:focus-visible,.ui5-input:focus-visible{outline:2px solid var(--sapHighlightColor);outline-offset:1px}
+.ui5-button-icon{padding:5px 10px}
+.ui5-input{
+    min-height:32px;
+    width:min(420px,100%);
+    border:1px solid #89919a;
+    border-radius:4px;
+    background:#fff;
+    color:var(--sapTextColor);
+    padding:6px 10px;
+    font:inherit;
+}
+.ui5-meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:16px}
+.ui5-label{color:var(--sapContent_LabelColor);font-size:12px}
+.ui5-token-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.ui5-token{
+    display:inline-flex;
+    align-items:center;
+    min-height:26px;
+    max-width:100%;
+    border:1px solid #b3d4f5;
+    border-radius:4px;
+    background:var(--sapInformationBackground);
+    color:#174a7c;
+    padding:3px 8px;
+    overflow-wrap:anywhere;
+}
+.toc-details{overflow:hidden}
+.toc-details>summary,.codeplug-table>summary{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    min-height:44px;
+    padding:0 16px;
+    background:var(--sapList_HeaderBackground);
+    border-bottom:1px solid var(--sapList_BorderColor);
+    cursor:pointer;
+    font-weight:700;
+    list-style:none;
+}
+.toc-details>summary::-webkit-details-marker,.codeplug-table>summary::-webkit-details-marker{display:none}
+.toc-details>summary::before,.codeplug-table>summary::before{content:"\\25B8";color:var(--sapContent_LabelColor);margin-right:2px}
+.toc-details[open]>summary::before,.codeplug-table[open]>summary::before{content:"\\25BE"}
+.summary-title{flex:1;min-width:0;overflow-wrap:anywhere}
+.top-link{
+    flex:0 0 auto;
+    border:1px solid transparent;
+    border-radius:4px;
+    padding:5px 8px;
+    font-size:12px;
+    font-weight:700;
+}
+.top-link:hover{background:var(--sapButton_Hover_Background);text-decoration:none}
+.toc-search{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--sapList_BorderColor)}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;margin:0;padding:0;list-style:none}
+.toc li{border-bottom:1px solid var(--sapList_BorderColor)}
+.toc a{display:block;padding:10px 16px;overflow-wrap:anywhere}
+.toc a:hover{background:#f0f7ff;text-decoration:none}
+.toc-empty{display:none;margin:0;padding:14px 16px;color:var(--sapContent_LabelColor)}
+.codeplug-table{margin-top:12px;overflow:hidden}
+.table-wrap{overflow:auto;background:#fff}
+table{width:100%;border-collapse:collapse;background:#fff;table-layout:auto}
+th,td{
+    border-bottom:1px solid var(--sapList_BorderColor);
+    border-right:1px solid var(--sapList_BorderColor);
+    padding:8px 10px;
+    text-align:left;
+    vertical-align:top;
+    overflow-wrap:anywhere;
+}
+th:last-child,td:last-child{border-right:0}
+th{
+    position:sticky;
+    top:48px;
+    z-index:1;
+    background:var(--sapList_TableGroupHeaderBackground);
+    color:var(--sapContent_LabelColor);
+    font-weight:700;
+}
+td:first-child{font-weight:700;background:#fafafa}
+.same{background:var(--sapSuccessBackground);box-shadow:inset 4px 0 0 var(--sapSuccessBorderColor)}
+.different{background:var(--sapWarningBackground);box-shadow:inset 4px 0 0 var(--sapWarningBorderColor)}
+.missing{background:var(--sapErrorBackground);box-shadow:inset 4px 0 0 var(--sapErrorBorderColor)}
+.empty{color:var(--sapContent_LabelColor)}
+@media (max-width:700px){
+    .ui5-shellbar{padding:0 16px}
+    .ui5-shell-subtitle{display:none}
+    .ui5-page{padding:12px}
+    .ui5-object-page-header{padding:16px}
+    h1{font-size:22px}
+    .ui5-toolbar,.toc-search{align-items:stretch}
+    .ui5-button,.ui5-input{width:100%}
+    th{top:48px}
+}
+"""
+
+
+REPORT_JS = """
+function setAllDetails(open){
+    document.querySelectorAll('details.codeplug-table').forEach(function(item){item.open=open;});
+}
+function openAndJump(id){
+    var item=document.getElementById(id);
+    if(item){item.open=true;item.scrollIntoView({behavior:'smooth',block:'start'});}
+}
+function filterToc(){
+    var term=document.getElementById('toc-search').value.toLowerCase();
+    var shown=0;
+    document.querySelectorAll('#toc-list li').forEach(function(item){
+        var match=item.textContent.toLowerCase().indexOf(term)!==-1;
+        item.style.display=match?'':'none';
+        if(match){shown++;}
+    });
+    document.getElementById('toc-empty').style.display=shown?'none':'block';
+}
+function clearTocSearch(){
+    document.getElementById('toc-search').value='';
+    filterToc();
+    document.getElementById('toc-search').focus();
+}
+"""
+
+
+GUI_COLORS = {
+    "background": "#f5f6f7",
+    "shell": "#354a5f",
+    "shell_text": "#ffffff",
+    "panel": "#ffffff",
+    "panel_header": "#f7f7f7",
+    "border": "#d9d9d9",
+    "text": "#1d2d3e",
+    "label": "#556b82",
+    "link": "#0a6ed1",
+    "button_hover": "#ebf5fe",
+}
+
+
 def build_report(input_files: list[Path], output_file: Path, table_marker: str) -> None:
     parsed_files = [parse_codeplug_tables(path, table_marker) for path in input_files]
     table_titles = ordered_union(parsed_files)
     anchors = {title: make_anchor(title, index) for index, title in enumerate(table_titles, start=1)}
+    total_rows = sum(len(parsed_file[title].rows) for parsed_file in parsed_files for title in parsed_file)
     report_parts = [
         "<!doctype html>",
         "<html lang='de'>",
         "<head>",
         "<meta charset='utf-8'>",
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>",
         "<title>Codeplug Vergleich</title>",
         "<style>",
-        "body{font-family:Arial,sans-serif;margin:24px;background:#f7f7f7;color:#222}",
-        "h1{font-size:24px;margin:0 0 16px}",
-        "h2{font-size:18px;margin:24px 0 10px}",
-        "table{border-collapse:collapse;width:100%;background:white}",
-        "th,td{border:1px solid #bbb;padding:6px 8px;text-align:left;vertical-align:top}",
-        "th{background:#d8e8ff}",
-        "button{border:1px solid #888;background:white;border-radius:4px;padding:7px 10px;cursor:pointer}",
-        "button:hover{background:#eef4ff}",
-        "details{margin:0 0 12px;background:white;border:1px solid #ccc}",
-        "summary{font-size:16px;font-weight:bold;padding:10px 12px;cursor:pointer;background:#e9eef5}",
-        "summary:hover{background:#dde8f5}",
-        ".summary-title{display:inline-block;margin-right:10px}",
-        ".top-link{float:right;font-size:12px;font-weight:normal;border:1px solid #8fa3ba;background:white;border-radius:4px;padding:3px 7px;color:#17456d;text-decoration:none}",
-        ".top-link:hover{background:#eef4ff}",
-        "input[type='search']{border:1px solid #aaa;border-radius:4px;padding:7px 9px;min-width:280px}",
-        ".marker-field{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 16px}",
-        ".marker-field input{border:1px solid #aaa;border-radius:4px;padding:7px 9px;min-width:220px;background:white}",
-        ".table-wrap{padding:12px;overflow:auto}",
-        ".same{background:#c9f7c9}",
-        ".different{background:#ffd58a}",
-        ".missing{background:#ffb3b3}",
-        ".empty{color:#777}",
-        ".files,.toc{margin:0 0 20px;padding-left:18px}",
-        ".actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}",
-        ".toc-search{display:flex;gap:8px;flex-wrap:wrap;margin:12px}",
-        ".toc li{margin:3px 0}",
-        ".toc-empty{display:none;margin:0 12px 12px;color:#666}",
+        REPORT_CSS,
         "</style>",
         "<script>",
-        "function setAllDetails(open){document.querySelectorAll('details.codeplug-table').forEach(function(item){item.open=open;});}",
-        "function openAndJump(id){var item=document.getElementById(id);if(item){item.open=true;item.scrollIntoView({behavior:'smooth',block:'start'});}}",
-        "function filterToc(){var term=document.getElementById('toc-search').value.toLowerCase();var shown=0;document.querySelectorAll('#toc-list li').forEach(function(item){var match=item.textContent.toLowerCase().indexOf(term)!==-1;item.style.display=match?'':'none';if(match){shown++;}});document.getElementById('toc-empty').style.display=shown?'none':'block';}",
-        "function clearTocSearch(){document.getElementById('toc-search').value='';filterToc();document.getElementById('toc-search').focus();}",
+        REPORT_JS,
         "</script>",
         "</head>",
         "<body>",
         "<div id='top'></div>",
+        "<header class='ui5-shellbar'>",
+        "<span class='ui5-product-switch' aria-hidden='true'>&#9638;</span>",
+        f"<span class='ui5-shell-title'>{html.escape(APP_NAME)}</span>",
+        "<span class='ui5-shell-subtitle'>Codeplug Vergleichsreport</span>",
+        "</header>",
+        "<main class='ui5-page'>",
+        "<section class='ui5-object-page-header'>",
+        "<div class='ui5-title-row'>",
+        "<div>",
         "<h1>Codeplug Vergleich</h1>",
-        "<ul class='files'>",
+        "<p class='ui5-subtitle'>HTML-Vergleichsreport im UI5/Fiori-Stil</p>",
+        "</div>",
+        "<div class='ui5-toolbar' aria-label='Tabellenaktionen'>",
+        "<button class='ui5-button' type='button' onclick='setAllDetails(true)'>Alle Tabellen aufklappen</button>",
+        "<button class='ui5-button' type='button' onclick='setAllDetails(false)'>Alle Tabellen zuklappen</button>",
+        "</div>",
+        "</div>",
+        "<div class='ui5-kpis'>",
+        f"<div class='ui5-kpi'><span class='ui5-kpi-value'>{len(input_files)}</span><span class='ui5-kpi-label'>Dateien</span></div>",
+        f"<div class='ui5-kpi'><span class='ui5-kpi-value'>{len(table_titles)}</span><span class='ui5-kpi-label'>Tabellen</span></div>",
+        f"<div class='ui5-kpi'><span class='ui5-kpi-value'>{total_rows}</span><span class='ui5-kpi-label'>Werte</span></div>",
+        "</div>",
+        "</section>",
+        "<section class='ui5-section ui5-panel'>",
+        "<div class='ui5-panel-header'><span class='ui5-panel-title'>Vergleichsparameter</span></div>",
+        "<div class='ui5-meta-grid'>",
+        "<div>",
+        "<div class='ui5-label'>Tabellen-Suchbegriff</div>",
+        f"<div class='ui5-token-list'><span class='ui5-token'>{html.escape(table_marker)}</span></div>",
+        "</div>",
+        "<div>",
+        "<div class='ui5-label'>Eingabedateien</div>",
+        "<div class='ui5-token-list'>",
     ]
 
     for path in input_files:
-        report_parts.append(f"<li>{html.escape(str(path))}</li>")
-    report_parts.append("</ul>")
-    report_parts.append("<div class='marker-field'>")
-    report_parts.append("<label for='table-marker'>Tabellen-Suchbegriff</label>")
-    report_parts.append(
-        f"<input id='table-marker' type='text' value='{html.escape(table_marker, quote=True)}' readonly>"
-    )
+        report_parts.append(f"<span class='ui5-token'>{html.escape(str(path))}</span>")
     report_parts.append("</div>")
-    report_parts.append("<div class='actions'>")
-    report_parts.append("<button type='button' onclick='setAllDetails(true)'>Alle Tabellen aufklappen</button>")
-    report_parts.append("<button type='button' onclick='setAllDetails(false)'>Alle Tabellen zuklappen</button>")
     report_parts.append("</div>")
-    report_parts.append("<details class='toc-details'>")
+    report_parts.append("</div>")
+    report_parts.append("</section>")
+    report_parts.append("<section class='ui5-section ui5-panel'>")
+    report_parts.append("<details class='toc-details' open>")
     report_parts.append("<summary>Inhaltsverzeichnis</summary>")
     report_parts.append("<div class='toc-search'>")
     report_parts.append(
-        "<input id='toc-search' type='search' placeholder='Tabellen suchen' "
+        "<input id='toc-search' class='ui5-input' type='search' placeholder='Tabellen suchen' "
         "oninput='filterToc()' aria-label='Inhaltsverzeichnis durchsuchen'>"
     )
-    report_parts.append("<button type='button' onclick='clearTocSearch()'>Suche leeren</button>")
+    report_parts.append("<button class='ui5-button' type='button' onclick='clearTocSearch()'>Suche leeren</button>")
     report_parts.append("</div>")
     report_parts.append("<p id='toc-empty' class='toc-empty'>Keine passende Tabelle gefunden.</p>")
     report_parts.append("<ul id='toc-list' class='toc'>")
@@ -252,10 +493,11 @@ def build_report(input_files: list[Path], output_file: Path, table_marker: str) 
         )
     report_parts.append("</ul>")
     report_parts.append("</details>")
+    report_parts.append("</section>")
 
     for title in table_titles:
         anchor = html.escape(anchors[title], quote=True)
-        report_parts.append(f"<details class='codeplug-table' id='{anchor}'>")
+        report_parts.append(f"<details class='codeplug-table ui5-panel' id='{anchor}'>")
         report_parts.append(
             f"<summary><span class='summary-title'>{html.escape(title)}</span>"
             "<a class='top-link' href='#top' onclick='event.stopPropagation()'>Nach oben</a></summary>"
@@ -283,7 +525,7 @@ def build_report(input_files: list[Path], output_file: Path, table_marker: str) 
         report_parts.append("</div>")
         report_parts.append("</details>")
 
-    report_parts.extend(["</body>", "</html>"])
+    report_parts.extend(["</main>", "</body>", "</html>"])
     output_file.write_text("\n".join(report_parts), encoding="utf-8")
 
 
@@ -332,6 +574,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 class TableDiffGui:
+    GUI_MIN_WIDTH = 780
+    GUI_PREFERRED_WIDTH = 900
+    GUI_SCREEN_MARGIN_X = 80
+    GUI_SCREEN_MARGIN_Y = 120
+    GUI_CONTENT_PADDING_Y = 32
+
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title(f"{APP_NAME} {APP_VERSION}")
@@ -340,49 +588,183 @@ class TableDiffGui:
         self.output_var = tk.StringVar(value=str(Path.cwd() / "tablediff_report.html"))
         self.open_report_var = tk.BooleanVar(value=True)
         self.status_var = tk.StringVar(value="Bitte 1 bis 4 HTML-Dateien auswaehlen.")
+        self._configure_style()
         self._build()
+        self._fit_window_to_content()
+
+    def _configure_style(self) -> None:
+        self.root.configure(background=GUI_COLORS["background"])
+        style = ttk.Style(self.root)
+        if "clam" in style.theme_names():
+            style.theme_use("clam")
+
+        default_font = ("Arial", 10)
+        title_font = ("Arial", 16)
+        section_font = ("Arial", 11, "bold")
+
+        style.configure(".", font=default_font, background=GUI_COLORS["background"], foreground=GUI_COLORS["text"])
+        style.configure("Ui5Page.TFrame", background=GUI_COLORS["background"])
+        style.configure("Ui5Panel.TFrame", background=GUI_COLORS["panel"], relief="solid", borderwidth=1)
+        style.configure("Ui5PanelHeader.TFrame", background=GUI_COLORS["panel_header"])
+        style.configure("Ui5Toolbar.TFrame", background=GUI_COLORS["panel"])
+        style.configure("Ui5Label.TLabel", background=GUI_COLORS["panel"], foreground=GUI_COLORS["label"])
+        style.configure("Ui5Text.TLabel", background=GUI_COLORS["panel"], foreground=GUI_COLORS["text"])
+        style.configure("Ui5Title.TLabel", background=GUI_COLORS["panel"], foreground=GUI_COLORS["text"], font=title_font)
+        style.configure(
+            "Ui5Section.TLabel",
+            background=GUI_COLORS["panel_header"],
+            foreground=GUI_COLORS["text"],
+            font=section_font,
+        )
+        style.configure("Ui5Status.TLabel", background=GUI_COLORS["background"], foreground=GUI_COLORS["label"])
+        style.configure("Ui5.TEntry", fieldbackground="#ffffff", foreground=GUI_COLORS["text"], padding=5)
+        style.configure(
+            "Ui5.TButton",
+            background="#ffffff",
+            foreground=GUI_COLORS["link"],
+            bordercolor=GUI_COLORS["link"],
+            lightcolor="#ffffff",
+            darkcolor="#ffffff",
+            padding=(10, 6),
+        )
+        style.map("Ui5.TButton", background=[("active", GUI_COLORS["button_hover"])])
+        style.configure(
+            "Ui5Primary.TButton",
+            background=GUI_COLORS["link"],
+            foreground="#ffffff",
+            bordercolor=GUI_COLORS["link"],
+            lightcolor=GUI_COLORS["link"],
+            darkcolor=GUI_COLORS["link"],
+            padding=(14, 7),
+        )
+        style.map("Ui5Primary.TButton", background=[("active", "#0854a0")], foreground=[("active", "#ffffff")])
+        style.configure("Ui5.TCheckbutton", background=GUI_COLORS["panel"], foreground=GUI_COLORS["text"])
 
     def _build(self) -> None:
         self.root.columnconfigure(0, weight=1)
-        frame = ttk.Frame(self.root, padding=14)
-        frame.grid(row=0, column=0, sticky="nsew")
+        self.root.rowconfigure(1, weight=1)
+
+        shellbar = tk.Frame(self.root, background=GUI_COLORS["shell"], height=48)
+        shellbar.grid(row=0, column=0, sticky="ew")
+        shellbar.grid_propagate(False)
+        shellbar.columnconfigure(1, weight=1)
+        tk.Label(
+            shellbar,
+            text=APP_NAME,
+            background=GUI_COLORS["shell"],
+            foreground=GUI_COLORS["shell_text"],
+            font=("Arial", 11, "bold"),
+            padx=20,
+        ).grid(row=0, column=0, sticky="w")
+        tk.Label(
+            shellbar,
+            text="Codeplug Vergleich",
+            background=GUI_COLORS["shell"],
+            foreground="#d3dce6",
+            font=("Arial", 10),
+        ).grid(row=0, column=1, sticky="w")
+
+        page = ttk.Frame(self.root, padding=16, style="Ui5Page.TFrame")
+        page.grid(row=1, column=0, sticky="nsew")
+        page.columnconfigure(0, weight=1)
+        page.rowconfigure(1, weight=1)
+
+        header = ttk.Frame(page, padding=(18, 14), style="Ui5Panel.TFrame")
+        header.grid(row=0, column=0, sticky="ew", pady=(0, 12))
+        header.columnconfigure(0, weight=1)
+        ttk.Label(header, text="Codeplug Vergleich", style="Ui5Title.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(
+            header,
+            text="HTML-Dateien auswaehlen und einen UI5-aehnlichen Vergleichsreport erzeugen.",
+            style="Ui5Label.TLabel",
+        ).grid(row=1, column=0, sticky="w", pady=(4, 0))
+
+        panel = ttk.Frame(page, style="Ui5Panel.TFrame")
+        panel.grid(row=1, column=0, sticky="nsew")
+        panel.columnconfigure(0, weight=1)
+
+        panel_header = ttk.Frame(panel, padding=(14, 10), style="Ui5PanelHeader.TFrame")
+        panel_header.grid(row=0, column=0, sticky="ew")
+        ttk.Label(panel_header, text="Vergleichsparameter", style="Ui5Section.TLabel").grid(row=0, column=0, sticky="w")
+
+        frame = ttk.Frame(panel, padding=14, style="Ui5Toolbar.TFrame")
+        frame.grid(row=1, column=0, sticky="nsew")
         frame.columnconfigure(1, weight=1)
 
-        ttk.Label(frame, text="HTML-Dateien").grid(row=0, column=0, columnspan=3, sticky="w")
+        ttk.Label(frame, text="HTML-Dateien", style="Ui5Text.TLabel").grid(row=0, column=0, columnspan=3, sticky="w")
         for index, file_var in enumerate(self.file_vars, start=1):
             row = index
-            ttk.Label(frame, text=f"Datei {index}").grid(row=row, column=0, sticky="w", pady=3)
-            ttk.Entry(frame, textvariable=file_var).grid(row=row, column=1, sticky="ew", padx=8, pady=3)
-            ttk.Button(frame, text="Auswaehlen", command=lambda i=index - 1: self._select_input(i)).grid(
+            ttk.Label(frame, text=f"Datei {index}", style="Ui5Label.TLabel").grid(row=row, column=0, sticky="w", pady=4)
+            ttk.Entry(frame, textvariable=file_var, style="Ui5.TEntry").grid(
+                row=row, column=1, sticky="ew", padx=10, pady=4
+            )
+            ttk.Button(
+                frame,
+                text="Auswaehlen",
+                style="Ui5.TButton",
+                command=lambda i=index - 1: self._select_input(i),
+            ).grid(
                 row=row, column=2, sticky="ew", pady=3
             )
 
         marker_row = 5
-        ttk.Label(frame, text="Tabellen-Suchbegriff").grid(row=marker_row, column=0, sticky="w", pady=(12, 3))
-        ttk.Entry(frame, textvariable=self.marker_var).grid(
-            row=marker_row, column=1, columnspan=2, sticky="ew", padx=(8, 0), pady=(12, 3)
+        ttk.Label(frame, text="Tabellen-Suchbegriff", style="Ui5Label.TLabel").grid(
+            row=marker_row, column=0, sticky="w", pady=(14, 4)
+        )
+        ttk.Entry(frame, textvariable=self.marker_var, style="Ui5.TEntry").grid(
+            row=marker_row, column=1, columnspan=2, sticky="ew", padx=(10, 0), pady=(14, 4)
         )
 
         output_row = 6
-        ttk.Label(frame, text="Ausgabedatei").grid(row=output_row, column=0, sticky="w", pady=3)
-        ttk.Entry(frame, textvariable=self.output_var).grid(row=output_row, column=1, sticky="ew", padx=8, pady=3)
-        ttk.Button(frame, text="Speichern unter", command=self._select_output).grid(
-            row=output_row, column=2, sticky="ew", pady=3
+        ttk.Label(frame, text="Ausgabedatei", style="Ui5Label.TLabel").grid(row=output_row, column=0, sticky="w", pady=4)
+        ttk.Entry(frame, textvariable=self.output_var, style="Ui5.TEntry").grid(
+            row=output_row, column=1, sticky="ew", padx=10, pady=4
+        )
+        ttk.Button(frame, text="Speichern unter", style="Ui5.TButton", command=self._select_output).grid(
+            row=output_row, column=2, sticky="ew", pady=4
         )
 
         ttk.Checkbutton(
             frame,
             text="Report nach dem Erzeugen oeffnen",
             variable=self.open_report_var,
-        ).grid(row=7, column=0, columnspan=3, sticky="w", pady=(8, 3))
+            style="Ui5.TCheckbutton",
+        ).grid(row=7, column=0, columnspan=3, sticky="w", pady=(10, 4))
 
-        action_frame = ttk.Frame(frame)
-        action_frame.grid(row=8, column=0, columnspan=3, sticky="ew", pady=(12, 3))
+        action_frame = ttk.Frame(frame, style="Ui5Toolbar.TFrame")
+        action_frame.grid(row=8, column=0, columnspan=3, sticky="ew", pady=(14, 4))
         action_frame.columnconfigure(0, weight=1)
-        ttk.Button(action_frame, text="Vergleich starten", command=self._run_compare).grid(row=0, column=1)
-        ttk.Button(action_frame, text="Beenden", command=self.root.destroy).grid(row=0, column=2, padx=(8, 0))
+        ttk.Button(action_frame, text="Vergleich starten", style="Ui5Primary.TButton", command=self._run_compare).grid(
+            row=0, column=1
+        )
+        ttk.Button(action_frame, text="Beenden", style="Ui5.TButton", command=self.root.destroy).grid(
+            row=0, column=2, padx=(8, 0)
+        )
 
-        ttk.Label(frame, textvariable=self.status_var).grid(row=9, column=0, columnspan=3, sticky="w", pady=(8, 0))
+        ttk.Label(page, textvariable=self.status_var, style="Ui5Status.TLabel").grid(
+            row=2, column=0, sticky="w", pady=(10, 0)
+        )
+
+    def _fit_window_to_content(self) -> None:
+        self.root.update_idletasks()
+
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        max_width = max(self.GUI_MIN_WIDTH, screen_width - self.GUI_SCREEN_MARGIN_X)
+        max_height = max(480, screen_height - self.GUI_SCREEN_MARGIN_Y)
+
+        requested_width = self.root.winfo_reqwidth()
+        requested_height = self.root.winfo_reqheight() + self.GUI_CONTENT_PADDING_Y
+        window_width = min(max(self.GUI_PREFERRED_WIDTH, requested_width), max_width)
+        window_height = min(requested_height, max_height)
+
+        min_width = min(self.GUI_MIN_WIDTH, window_width)
+        min_height = min(requested_height, window_height)
+        self.root.minsize(min_width, min_height)
+
+        position_x = max(0, (screen_width - window_width) // 2)
+        position_y = max(0, (screen_height - window_height) // 3)
+        self.root.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
 
     def _select_input(self, index: int) -> None:
         filename = filedialog.askopenfilename(

@@ -1,5 +1,7 @@
 *.html
 *.htm
+!testdata/
+!testdata/*.html
 __pycache__/
 *.py[cod]
 .DS_Store
@@ -9,4 +11,3 @@ dist/
 *.tar.gz
 *.zip
 *.sha256
-
