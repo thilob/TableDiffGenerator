@@ -4,7 +4,9 @@ TableDiffGenerator vergleicht bis zu vier HTML-Dateien, die Key/Value-Tabellen e
 
 Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabellen an einer gemeinsamen Überschrift erkannt werden. Standardmaessig sucht es nach Tabellenüberschriften mit `Codeplug\\`.
 
-Aktuelle Programmversion: `0.2.0`
+Als Vergleich von iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig.
+
+Aktuelle Programmversion: `0.3.0`
 
 ## Funktionen
 
@@ -98,7 +100,7 @@ werden und erzeugt Linux- und Windows-Archive inklusive SHA256-Dateien.
 Neue Releases sollen die Versionsnummer in `compare_codeplug_html.py` erhöhen:
 
 ```python
-APP_VERSION = "0.2.0"
+APP_VERSION = "0.3.0"
 ```
 
 Weitere Details stehen in `RELEASE.md`.
