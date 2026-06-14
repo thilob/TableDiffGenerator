@@ -15,6 +15,9 @@ if TYPE_CHECKING:
 def load_tkinter_gui_modules() -> None:
     global tk, filedialog, messagebox, ttk
 
+    if "tk" in globals():
+        return
+
     import tkinter as tk
     from tkinter import filedialog, messagebox, ttk
 
@@ -27,6 +30,7 @@ class TableDiffGui:
     GUI_CONTENT_PADDING_Y = 32
 
     def __init__(self, root: tk.Tk) -> None:
+        load_tkinter_gui_modules()
         self.root = root
         self.root.title(f"{APP_NAME} {APP_VERSION}")
         self.file_vars = [tk.StringVar() for _ in range(4)]
