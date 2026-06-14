@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version without leading v, e.g. 0.3.0"
+        description: "Release version without leading v, e.g. 0.4.0"
         required: true
-        default: "0.3.0"
+        default: "0.4.0"
 
 jobs:
   build-linux:
@@ -35,14 +35,15 @@ jobs:
         run: ./build-pyinstaller.sh
 
       - name: Verify Linux bundle
-        run: ./dist/tablediffgenerator/tablediffgenerator --version
+        run: ./dist/tablediffgenerator --version
 
       - name: Package Linux release
         run: |
           set -euo pipefail
           PKG_DIR="/tmp/tablediffgenerator-linux-v${VERSION}"
           mkdir -p "${PKG_DIR}"
-          cp -a dist README.md LICENSE RELEASE.md "${PKG_DIR}/"
+          cp dist/tablediffgenerator "${PKG_DIR}/"
+          cp README.md LICENSE RELEASE.md "${PKG_DIR}/"
           tar -C /tmp -czf "tablediffgenerator-linux-v${VERSION}.tar.gz" "tablediffgenerator-linux-v${VERSION}"
           sha256sum "tablediffgenerator-linux-v${VERSION}.tar.gz" > "tablediffgenerator-linux-v${VERSION}.tar.gz.sha256"
 
@@ -81,14 +82,14 @@ jobs:
         run: .\build-windows.bat
 
       - name: Verify Windows bundle
-        run: .\dist\tablediffgenerator\tablediffgenerator.exe --version
+        run: .\dist\tablediffgenerator.exe --version
 
       - name: Package Windows release
         shell: pwsh
         run: |
           $pkgDir = Join-Path $env:RUNNER_TEMP "tablediffgenerator-windows-v$env:VERSION"
           New-Item -ItemType Directory -Force -Path $pkgDir | Out-Null
-          Copy-Item dist -Destination $pkgDir -Recurse
+          Copy-Item dist\tablediffgenerator.exe -Destination $pkgDir
           Copy-Item README.md,LICENSE,RELEASE.md -Destination $pkgDir
           $zipPath = Join-Path $PWD "tablediffgenerator-windows-v$env:VERSION.zip"
           if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
@@ -104,3 +105,48 @@ jobs:
             tablediffgenerator-windows-v${{ inputs.version }}.zip
             tablediffgenerator-windows-v${{ inputs.version }}.zip.sha256
 
+  build-macos:
+    name: Build macOS Asset
+    runs-on: macos-latest
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Create virtual environment
+        run: python -m venv .venv
+
+      - name: Install dependencies
+        run: |
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt pyinstaller
+
+      - name: Build macOS bundle
+        run: ./build-pyinstaller.sh
+
+      - name: Verify macOS bundle
+        run: ./dist/tablediffgenerator --version
+
+      - name: Package macOS release
+        run: |
+          set -euo pipefail
+          PKG_DIR="/tmp/tablediffgenerator-macos-v${VERSION}"
+          mkdir -p "${PKG_DIR}"
+          cp dist/tablediffgenerator "${PKG_DIR}/"
+          cp README.md LICENSE RELEASE.md "${PKG_DIR}/"
+          tar -C /tmp -czf "tablediffgenerator-macos-v${VERSION}.tar.gz" "tablediffgenerator-macos-v${VERSION}"
+          shasum -a 256 "tablediffgenerator-macos-v${VERSION}.tar.gz" > "tablediffgenerator-macos-v${VERSION}.tar.gz.sha256"
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-assets
+          path: |
+            tablediffgenerator-macos-v${{ inputs.version }}.tar.gz
+            tablediffgenerator-macos-v${{ inputs.version }}.tar.gz.sha256

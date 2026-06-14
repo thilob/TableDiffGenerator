@@ -26,11 +26,11 @@ echo Erzeuge Windows-Bundle ...
 .venv\Scripts\pyinstaller.exe --noconfirm --clean tablediffgenerator.spec
 if errorlevel 1 exit /b 1
 
-if not exist dist\tablediffgenerator\tablediffgenerator.exe (
+if not exist dist\tablediffgenerator.exe (
     echo Fehler: Windows-Bundle wurde nicht erzeugt.
     exit /b 1
 )
 
 echo.
 echo Fertig.
-echo Startdatei: dist\tablediffgenerator\tablediffgenerator.exe
+echo Startdatei: dist\tablediffgenerator.exe

@@ -6,7 +6,7 @@ Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabe
 
 Als Vergleich von iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig.
 
-Aktuelle Programmversion: `0.3.0`
+Aktuelle Programmversion: `0.4.0`
 
 ## Funktionen
 
@@ -115,7 +115,7 @@ Rancher Server liegen unter [Kubernetes](Kubernetes/README.md).
 
 ## Release-Builds
 
-Die Release-Builds werden mit PyInstaller als `--onedir`-Bundle gebaut.
+Die Release-Builds werden mit PyInstaller als einzelne `--onefile`-Programme gebaut.
 
 ### Linux
 
@@ -124,7 +124,7 @@ python3 -m venv .venv
 .venv/bin/pip install --upgrade pip
 .venv/bin/pip install -r requirements.txt pyinstaller
 ./build-pyinstaller.sh
-./dist/tablediffgenerator/tablediffgenerator --version
+./dist/tablediffgenerator --version
 ```
 
 ### Windows
@@ -134,18 +134,18 @@ python -m venv .venv
 .venv\Scripts\pip install --upgrade pip
 .venv\Scripts\pip install -r requirements.txt pyinstaller
 build-windows.bat
-dist\tablediffgenerator\tablediffgenerator.exe --version
+dist\tablediffgenerator.exe --version
 ```
 
 ### GitHub Actions
 
 Der Workflow `.github/workflows/build-release-assets.yml` kann manuell gestartet
-werden und erzeugt Linux- und Windows-Archive inklusive SHA256-Dateien.
+werden und erzeugt Linux-, Windows- und macOS-Archive inklusive SHA256-Dateien.
 
 Neue Releases sollen die Versionsnummer in `tablediff/metadata.py` erhöhen:
 
 ```python
-APP_VERSION = "0.3.0"
+APP_VERSION = "0.4.0"
 ```
 
 Weitere Details stehen in `RELEASE.md`.
