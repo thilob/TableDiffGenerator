@@ -16,7 +16,7 @@ from typing import Iterable
 
 
 APP_NAME = "TableDiffGenerator"
-APP_VERSION = "0.3.0"
+APP_VERSION = "0.4.0"
 DEFAULT_TABLE_MARKER = "Codeplug\\"
 
 
