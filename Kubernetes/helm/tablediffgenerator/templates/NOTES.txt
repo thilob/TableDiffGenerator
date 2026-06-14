@@ -1,5 +1,14 @@
 TableDiffGenerator wurde installiert.
 
+{{- if eq .Values.service.type "NodePort" }}
+NodePort-Zugriff:
+
+  http://127.0.0.1:{{ .Values.service.nodePort }}
+
+Health-Check:
+
+  http://127.0.0.1:{{ .Values.service.nodePort }}/healthz
+{{- else }}
 Lokaler Zugriff per Port-Forward:
 
   kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "tablediffgenerator.fullname" . }} 8080:{{ .Values.service.port }}
@@ -7,3 +16,4 @@ Lokaler Zugriff per Port-Forward:
 Danach im Browser öffnen:
 
   http://127.0.0.1:8080
+{{- end }}

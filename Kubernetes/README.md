@@ -15,10 +15,10 @@ Die Anwendung besteht im Kubernetes-Cluster aus:
 - einem `Service` für den Zugriff innerhalb des Clusters
 - optional einem `Ingress` für Zugriff über Hostname
 
-Für den ersten Test ist **kein Ingress nötig**. Am einfachsten ist:
+Für den ersten Test ist **kein Ingress nötig**. Der Lernpfad ist:
 
-```bash
-kubectl port-forward
+```text
+Port-Forward -> NodePort -> Ingress
 ```
 
 ## Voraussetzungen
@@ -124,7 +124,60 @@ Der Health-Check der Anwendung ist hier erreichbar:
 http://127.0.0.1:8080/healthz
 ```
 
-## 5. Aktualisieren nach Codeänderungen
+## 5. Zugriff per NodePort
+
+NodePort ist ein guter Zwischenschritt vor Ingress. Der Service bekommt dabei
+einen festen Port auf dem Kubernetes-Node.
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --set service.type=NodePort \
+  --set service.nodePort=30080
+```
+
+Service prüfen:
+
+```bash
+kubectl -n tablediff get service tablediffgenerator
+```
+
+Danach ist die Anwendung in Rancher Desktop typischerweise hier erreichbar:
+
+```text
+http://127.0.0.1:30080
+```
+
+Health-Check:
+
+```text
+http://127.0.0.1:30080/healthz
+```
+
+Zurück zum internen ClusterIP-Service:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --set service.type=ClusterIP \
+  --set service.nodePort=null
+```
+
+Wenn Rancher die Replikazahl über die Oberfläche verändert hat, kann Helm 4
+beim Upgrade einen Field-Manager-Konflikt melden, z. B. für `.spec.replicas`.
+Dann entweder die gewünschte Replikazahl explizit mitgeben oder erst in Rancher
+zurückstellen. Beispiel, wenn aktuell 5 Replikas gewünscht sind:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --set service.type=NodePort \
+  --set service.nodePort=30080 \
+  --set replicaCount=5 \
+  --force-conflicts
+```
+
+## 6. Aktualisieren nach Codeänderungen
 
 Image neu bauen:
 
@@ -141,7 +194,7 @@ kubectl -n tablediff rollout status deployment/tablediffgenerator
 
 Bei `containerd` entsprechend wieder mit `nerdctl -n k8s.io build ...` bauen.
 
-## 6. Deinstallieren
+## 7. Deinstallieren
 
 ```bash
 helm uninstall tablediffgenerator --namespace tablediff
@@ -227,7 +280,8 @@ Häufige Werte:
 
 - `image.repository`: Name der Container-Image-Repository
 - `image.tag`: Image-Version
-- `service.type`: meistens `ClusterIP`
+- `service.type`: `ClusterIP` für intern, `NodePort` für festen lokalen Testport
+- `service.nodePort`: fester NodePort, z. B. `30080`
 - `container.maxUploadSize`: maximale Uploadgröße in Bytes
 - `ingress.enabled`: Ingress ein- oder ausschalten
 - `resources`: CPU- und Speichergrenzen
