@@ -5,14 +5,15 @@ import argparse
 import html
 import re
 import sys
-import tkinter as tk
 import webbrowser
 from collections import Counter, OrderedDict
 from dataclasses import dataclass
 from html.parser import HTMLParser
-from tkinter import filedialog, messagebox, ttk
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import tkinter as tk
 
 
 APP_NAME = "TableDiffGenerator"
@@ -460,7 +461,7 @@ GUI_COLORS = {
 }
 
 
-def build_report(input_files: list[Path], output_file: Path, table_marker: str) -> None:
+def build_report_html(input_files: list[Path], table_marker: str) -> str:
     parsed_files = [parse_codeplug_tables(path, table_marker) for path in input_files]
     table_titles = ordered_union(parsed_files)
     anchors = {title: make_anchor(title, index) for index, title in enumerate(table_titles, start=1)}
@@ -577,7 +578,11 @@ def build_report(input_files: list[Path], output_file: Path, table_marker: str) 
         report_parts.append("</details>")
 
     report_parts.extend(["</main>", "</body>", "</html>"])
-    output_file.write_text("\n".join(report_parts), encoding="utf-8")
+    return "\n".join(report_parts)
+
+
+def build_report(input_files: list[Path], output_file: Path, table_marker: str) -> None:
+    output_file.write_text(build_report_html(input_files, table_marker), encoding="utf-8")
 
 
 def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
@@ -639,6 +644,13 @@ def create_parser() -> argparse.ArgumentParser:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     return create_parser().parse_args(argv)
+
+
+def load_tkinter_gui_modules() -> None:
+    global tk, filedialog, messagebox, ttk
+
+    import tkinter as tk
+    from tkinter import filedialog, messagebox, ttk
 
 
 class TableDiffGui:
@@ -890,6 +902,7 @@ class TableDiffGui:
 
 
 def run_gui() -> int:
+    load_tkinter_gui_modules()
     root = tk.Tk()
     TableDiffGui(root)
     root.mainloop()

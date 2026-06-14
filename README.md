@@ -68,6 +68,34 @@ Versionsausgabe:
 python3 compare_codeplug_html.py --version
 ```
 
+## Webportal
+
+Die Webversion stellt ein Upload-Portal bereit, in dem 1 bis 4 HTML-Dateien
+ausgewählt und direkt im Browser verglichen werden können.
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r Docker/requirements-web.txt
+.venv/bin/python Docker/web_app.py
+```
+
+Danach ist das Portal unter `http://127.0.0.1:8080` erreichbar.
+
+### Docker
+
+Die Webversion ist für den Betrieb im Container vorbereitet:
+
+```bash
+docker build -f Docker/Dockerfile -t tablediffgenerator-web .
+docker run --rm -p 8080:8080 tablediffgenerator-web
+```
+
+Alternativ mit Docker Compose:
+
+```bash
+docker compose -f Docker/compose.yaml up --build
+```
+
 ## Release-Builds
 
 Die Release-Builds werden mit PyInstaller als `--onedir`-Bundle gebaut.

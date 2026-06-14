@@ -1,0 +1,12 @@
+.git
+.venv
+__pycache__/
+*.pyc
+build/
+dist/
+testdata/
+*.html
+*.htm
+*.tar.gz
+*.zip
+*.sha256
