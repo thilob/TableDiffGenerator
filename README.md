@@ -24,6 +24,18 @@ Aktuelle Programmversion: `0.3.0`
 - einfache GUI für Linux und Windows
 - keine externen Python-Abhängigkeiten
 
+## Projektstruktur
+
+Die gemeinsame Vergleichs- und Reportlogik liegt im Paket `tablediff/`.
+Der bisherige Einstiegspunkt `compare_codeplug_html.py` bleibt für CLI, GUI
+und bestehende Build-Skripte erhalten.
+
+- `tablediff/core.py`: HTML-Parsing und Tabellenvergleich
+- `tablediff/report.py`: HTML-Report-Erzeugung
+- `tablediff/gui.py`: Tkinter-GUI
+- `tablediff/cli.py`: Kommandozeilenstart
+- `Docker/`: Webportal, Dockerfile und Compose-Konfiguration
+
 ## Nutzung
 
 Ohne Kommandozeilenargumente startet die GUI:
@@ -125,7 +137,7 @@ dist\tablediffgenerator\tablediffgenerator.exe --version
 Der Workflow `.github/workflows/build-release-assets.yml` kann manuell gestartet
 werden und erzeugt Linux- und Windows-Archive inklusive SHA256-Dateien.
 
-Neue Releases sollen die Versionsnummer in `compare_codeplug_html.py` erhöhen:
+Neue Releases sollen die Versionsnummer in `tablediff/metadata.py` erhöhen:
 
 ```python
 APP_VERSION = "0.3.0"

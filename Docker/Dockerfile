@@ -10,6 +10,7 @@ COPY Docker/requirements-web.txt .
 RUN pip install --no-cache-dir -r requirements-web.txt
 
 COPY compare_codeplug_html.py ./
+COPY tablediff ./tablediff
 COPY Docker/web_app.py ./
 
 EXPOSE 8080

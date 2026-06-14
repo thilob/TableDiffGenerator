@@ -13,7 +13,7 @@ if (PROJECT_ROOT / "compare_codeplug_html.py").is_file() and str(PROJECT_ROOT) n
 from flask import Flask, Response, render_template_string, request
 from werkzeug.utils import secure_filename
 
-from compare_codeplug_html import APP_NAME, APP_VERSION, DEFAULT_TABLE_MARKER, build_report_html
+from tablediff import APP_NAME, APP_VERSION, DEFAULT_TABLE_MARKER, build_report_html
 
 
 MAX_FILES = 4
