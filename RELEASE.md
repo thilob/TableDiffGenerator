@@ -20,20 +20,20 @@ Eine ausführliche Anleitung für ungeübte Nutzer steht in `BUILD.md`.
 
 ```bash
 ./build-pyinstaller.sh
-./dist/tablediffgenerator/tablediffgenerator --version
+./dist/tablediffgenerator --version
 ```
 
 Der Start ohne Kommandozeilenparameter öffnet die GUI:
 
 ```bash
-./dist/tablediffgenerator/tablediffgenerator
+./dist/tablediffgenerator
 ```
 
 ## Lokaler Windows-Build
 
 ```bat
 build-windows.bat
-dist\tablediffgenerator\tablediffgenerator.exe --version
+dist\tablediffgenerator.exe --version
 ```
 
 ## GitHub Actions
@@ -47,6 +47,8 @@ Der Workflow wird manuell gestartet und erwartet eine Version ohne führendes
 - `tablediffgenerator-linux-v<VERSION>.tar.gz.sha256`
 - `tablediffgenerator-windows-v<VERSION>.zip`
 - `tablediffgenerator-windows-v<VERSION>.zip.sha256`
+- `tablediffgenerator-macos-v<VERSION>.tar.gz`
+- `tablediffgenerator-macos-v<VERSION>.tar.gz.sha256`
 
 Die HTML-Eingabedateien und erzeugten Reports werden nicht in Releases
 mitverpackt.

@@ -24,11 +24,11 @@ echo "Installiere/aktualisiere Build-Werkzeuge ..."
 echo "Erzeuge Linux-Bundle ..."
 ".venv/bin/pyinstaller" --noconfirm --clean tablediffgenerator.spec
 
-if [[ ! -x "dist/tablediffgenerator/tablediffgenerator" ]]; then
+if [[ ! -x "dist/tablediffgenerator" ]]; then
     echo "Fehler: Linux-Bundle wurde nicht erzeugt."
     exit 1
 fi
 
 echo
 echo "Fertig."
-echo "Startdatei: dist/tablediffgenerator/tablediffgenerator"
+echo "Startdatei: dist/tablediffgenerator"

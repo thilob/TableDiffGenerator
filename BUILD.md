@@ -6,11 +6,10 @@ gehalten.
 
 ## Was wird gebaut?
 
-Der Build erzeugt ein PyInstaller-`onedir`-Bundle. Das bedeutet:
+Der Build erzeugt ein PyInstaller-`onefile`-Programm. Das bedeutet:
 
-- Es entsteht ein Ordner `dist/tablediffgenerator/`.
-- In diesem Ordner liegt die startbare Datei.
-- Der komplette Ordner muss zusammenbleiben.
+- Es entsteht eine einzelne startbare Datei im Ordner `dist/`.
+- Diese Datei kann ohne `_internal`-Ordner in ein anderes Verzeichnis kopiert werden.
 - Python muss auf dem Zielrechner danach nicht mehr separat installiert sein.
 
 ## Allgemeine Voraussetzungen
@@ -69,7 +68,7 @@ Das Skript erledigt automatisch:
 Nach erfolgreichem Build:
 
 ```bash
-./dist/tablediffgenerator/tablediffgenerator
+./dist/tablediffgenerator
 ```
 
 Ohne Kommandozeilenparameter startet die GUI.
@@ -77,7 +76,7 @@ Ohne Kommandozeilenparameter startet die GUI.
 Versionsprüfung:
 
 ```bash
-./dist/tablediffgenerator/tablediffgenerator --version
+./dist/tablediffgenerator --version
 ```
 
 ## Windows
@@ -131,7 +130,7 @@ Das Skript erledigt automatisch:
 Nach erfolgreichem Build:
 
 ```bat
-dist\tablediffgenerator\tablediffgenerator.exe
+dist\tablediffgenerator.exe
 ```
 
 Ohne Kommandozeilenparameter startet die GUI.
@@ -139,7 +138,7 @@ Ohne Kommandozeilenparameter startet die GUI.
 Versionsprüfung:
 
 ```bat
-dist\tablediffgenerator\tablediffgenerator.exe --version
+dist\tablediffgenerator.exe --version
 ```
 
 ## Typische Probleme
@@ -172,7 +171,7 @@ Auf Linux muss eine grafische Desktop-Sitzung laufen. Auf Servern ohne Desktop
 kann die GUI nicht angezeigt werden. Die Kommandozeile funktioniert trotzdem:
 
 ```bash
-./dist/tablediffgenerator/tablediffgenerator input1.html input2.html -o vergleich.html
+./dist/tablediffgenerator input1.html input2.html -o vergleich.html
 ```
 
 ### Windows meldet Sicherheitswarnung
@@ -198,5 +197,4 @@ Für GitHub-Releases gibt es zusätzlich den Workflow:
 .github/workflows/build-release-assets.yml
 ```
 
-Dieser Workflow baut Linux- und Windows-Archive automatisch auf GitHub.
-
+Dieser Workflow baut Linux-, Windows- und macOS-Archive automatisch auf GitHub.
