@@ -1,0 +1,12 @@
+# Values for using the image published to GitHub Packages / GHCR.
+#
+# Install example:
+# helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+#   --namespace tablediff \
+#   --create-namespace \
+#   -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml
+
+image:
+  repository: ghcr.io/thilob/tablediffgenerator-web
+  tag: kubernetes-latest
+  pullPolicy: IfNotPresent

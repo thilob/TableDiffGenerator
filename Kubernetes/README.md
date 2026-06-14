@@ -10,6 +10,7 @@ benötigt aber normalerweise eine erreichbare Container Registry.
 Die Anwendung besteht im Kubernetes-Cluster aus:
 
 - einem Docker-Image mit der Flask/Gunicorn-Webanwendung
+- optional einem veröffentlichten Image aus GitHub Packages / GHCR
 - einem Helm Chart unter `Kubernetes/helm/tablediffgenerator`
 - einem `Deployment` für den Pod
 - einem `Service` für den Zugriff innerhalb des Clusters
@@ -75,6 +76,27 @@ tablediffgenerator-web:local
 ```
 
 und `imagePullPolicy: IfNotPresent`.
+
+## 1a. Image aus GitHub Packages nutzen
+
+Alternativ zum lokalen Build kann Kubernetes das veröffentlichte Container-Image
+aus GitHub Packages ziehen:
+
+```text
+ghcr.io/thilob/tablediffgenerator-web:kubernetes-latest
+```
+
+Dafür ist eine eigene Values-Datei vorbereitet:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --create-namespace \
+  -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml
+```
+
+Das ist vor allem für Rancher Server oder andere Cluster sinnvoll, die nicht auf
+deinen lokalen Docker-Image-Speicher zugreifen können.
 
 ## 2. Namespace anlegen
 
@@ -279,7 +301,22 @@ Bei einem Rancher-Server-Cluster läuft Kubernetes meistens nicht auf dem lokale
 Rechner. Dann reicht ein lokal gebautes Image nicht aus. Das Image muss in eine
 Registry gepusht werden, die der Cluster erreichen kann.
 
-Beispiel:
+Für dieses Projekt ist GitHub Packages / GHCR als Standard-Registry vorbereitet:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --create-namespace \
+  -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml
+```
+
+Das Chart nutzt dann:
+
+```text
+ghcr.io/thilob/tablediffgenerator-web:kubernetes-latest
+```
+
+Ein Beispiel mit einer eigenen Registry:
 
 ```bash
 docker build -f Docker/Dockerfile -t registry.example.com/tablediffgenerator-web:0.3.0 .
