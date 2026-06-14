@@ -108,6 +108,11 @@ Alternativ mit Docker Compose:
 docker compose -f Docker/docker-compose.yaml up --build
 ```
 
+### Kubernetes
+
+Ein Helm Chart und eine Schritt-für-Schritt-Anleitung für Rancher Desktop und
+Rancher Server liegen unter [Kubernetes](Kubernetes/README.md).
+
 ## Release-Builds
 
 Die Release-Builds werden mit PyInstaller als `--onedir`-Bundle gebaut.

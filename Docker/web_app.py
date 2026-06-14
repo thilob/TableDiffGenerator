@@ -194,6 +194,11 @@ def index() -> str:
     return render_portal()
 
 
+@app.get("/healthz")
+def healthz() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.post("/compare")
 def compare() -> Response | tuple[str, int]:
     table_marker = request.form.get("table_marker", DEFAULT_TABLE_MARKER).strip()

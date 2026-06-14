@@ -1,0 +1,9 @@
+TableDiffGenerator wurde installiert.
+
+Lokaler Zugriff per Port-Forward:
+
+  kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "tablediffgenerator.fullname" . }} 8080:{{ .Values.service.port }}
+
+Danach im Browser öffnen:
+
+  http://127.0.0.1:8080

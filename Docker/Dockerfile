@@ -15,4 +15,4 @@ COPY Docker/web_app.py ./
 
 EXPOSE 8080
 
-CMD ["python", "web_app.py"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} web_app:app"]
