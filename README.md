@@ -93,7 +93,7 @@ docker run --rm -p 8080:8080 tablediffgenerator-web
 Alternativ mit Docker Compose:
 
 ```bash
-docker compose -f Docker/compose.yaml up --build
+docker compose -f Docker/docker-compose.yaml up --build
 ```
 
 ## Release-Builds
