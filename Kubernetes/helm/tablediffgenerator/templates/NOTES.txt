@@ -1,6 +1,18 @@
 TableDiffGenerator wurde installiert.
 
-{{- if eq .Values.service.type "NodePort" }}
+{{- if .Values.ingress.enabled }}
+Ingress-Zugriff:
+
+{{- range .Values.ingress.hosts }}
+  http://{{ .host }}
+{{- end }}
+
+Health-Check:
+
+{{- range .Values.ingress.hosts }}
+  http://{{ .host }}/healthz
+{{- end }}
+{{- else if eq .Values.service.type "NodePort" }}
 NodePort-Zugriff:
 
   http://127.0.0.1:{{ .Values.service.nodePort }}

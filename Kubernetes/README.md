@@ -13,13 +13,16 @@ Die Anwendung besteht im Kubernetes-Cluster aus:
 - einem Helm Chart unter `Kubernetes/helm/tablediffgenerator`
 - einem `Deployment` für den Pod
 - einem `Service` für den Zugriff innerhalb des Clusters
-- optional einem `Ingress` für Zugriff über Hostname
+- einem `Ingress` für Zugriff über Hostname in Rancher Desktop
 
-Für den ersten Test ist **kein Ingress nötig**. Der Lernpfad ist:
+Der Lernpfad ist:
 
 ```text
 Port-Forward -> NodePort -> Ingress
 ```
+
+Im Chart ist die Ingress-Variante fuer Rancher Desktop aktuell aktiv. NodePort
+ist als kommentierte Variante in `values.yaml` erhalten.
 
 ## Voraussetzungen
 
@@ -106,6 +109,45 @@ kubectl -n tablediff logs -l app.kubernetes.io/name=tablediffgenerator
 
 ## 4. Anwendung öffnen
 
+Die Standardinstallation nutzt Traefik Ingress:
+
+```text
+http://tablediffgenerator.localhost
+```
+
+Health-Check:
+
+```text
+http://tablediffgenerator.localhost/healthz
+```
+
+Prüfen:
+
+```bash
+kubectl -n tablediff get ingress
+kubectl get ingressclass
+```
+
+Wenn Rancher Desktop Traefik nicht direkt auf Port 80 des lokalen Rechners
+veröffentlicht, kann der Ingress trotzdem über einen Port-Forward auf Traefik
+getestet werden:
+
+```bash
+kubectl -n kube-system port-forward service/traefik 18081:80
+```
+
+Danach im Browser öffnen:
+
+```text
+http://tablediffgenerator.localhost:18081
+```
+
+Dieser Weg nutzt weiterhin die Ingress-Regel mit dem Hostnamen
+`tablediffgenerator.localhost`; nur der Traefik-Einstieg wird lokal
+durchgereicht.
+
+### Alternative: direkter Service-Port-Forward
+
 Für den ersten Test:
 
 ```bash
@@ -124,16 +166,18 @@ Der Health-Check der Anwendung ist hier erreichbar:
 http://127.0.0.1:8080/healthz
 ```
 
-## 5. Zugriff per NodePort
+## 5. Nachverfolgbar: Zugriff per NodePort
 
 NodePort ist ein guter Zwischenschritt vor Ingress. Der Service bekommt dabei
-einen festen Port auf dem Kubernetes-Node.
+einen festen Port auf dem Kubernetes-Node. Diese Variante ist im Chart nicht
+aktiv, aber in `values.yaml` kommentiert dokumentiert.
 
 ```bash
 helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --set service.type=NodePort \
-  --set service.nodePort=30080
+  --set service.nodePort=30080 \
+  --set ingress.enabled=false
 ```
 
 Service prüfen:
@@ -160,7 +204,8 @@ Zurück zum internen ClusterIP-Service:
 helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --set service.type=ClusterIP \
-  --set service.nodePort=null
+  --set service.nodePort=null \
+  --set ingress.enabled=true
 ```
 
 Wenn Rancher die Replikazahl über die Oberfläche verändert hat, kann Helm 4
@@ -173,6 +218,7 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --set service.type=NodePort \
   --set service.nodePort=30080 \
+  --set ingress.enabled=false \
   --set replicaCount=5 \
   --force-conflicts
 ```
@@ -201,16 +247,14 @@ helm uninstall tablediffgenerator --namespace tablediff
 kubectl delete namespace tablediff
 ```
 
-## Option: Ingress aktivieren
+## Ingress
 
-Ingress ist für den ersten Test nicht nötig. Wenn Rancher Desktop einen
-Ingress Controller bereitstellt, kann der Zugriff per Hostname aktiviert werden:
+Ingress ist die aktive Standardvariante des Charts. Rancher Desktop bringt bei
+aktivierter Traefik-Option bereits einen passenden Ingress Controller mit.
 
 ```bash
 helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
-  --namespace tablediff \
-  --set ingress.enabled=true \
-  --set 'ingress.hosts[0].host=tablediffgenerator.localhost'
+  --namespace tablediff
 ```
 
 Danach:
@@ -280,8 +324,8 @@ Häufige Werte:
 
 - `image.repository`: Name der Container-Image-Repository
 - `image.tag`: Image-Version
-- `service.type`: `ClusterIP` für intern, `NodePort` für festen lokalen Testport
-- `service.nodePort`: fester NodePort, z. B. `30080`
+- `service.type`: standardmäßig `ClusterIP`; `NodePort` ist als kommentierte Variante dokumentiert
+- `service.nodePort`: fester NodePort, z. B. `30080`, wenn NodePort explizit aktiviert wird
 - `container.maxUploadSize`: maximale Uploadgröße in Bytes
 - `ingress.enabled`: Ingress ein- oder ausschalten
 - `resources`: CPU- und Speichergrenzen

@@ -14,15 +14,17 @@ service:
   type: ClusterIP
   port: 80
   targetPort: 8080
-  nodePort: null
+  # NodePort-Variante fuer lokale Tests ohne Ingress:
+  # type: NodePort
+  # nodePort: 30080
 
 container:
   port: 8080
   maxUploadSize: "33554432"
 
 ingress:
-  enabled: false
-  className: ""
+  enabled: true
+  className: traefik
   annotations: {}
   hosts:
     - host: tablediffgenerator.localhost
