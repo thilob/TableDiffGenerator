@@ -4,7 +4,7 @@ TableDiffGenerator vergleicht bis zu vier HTML-Dateien, die Key/Value-Tabellen e
 
 Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabellen an einer gemeinsamen Überschrift erkannt werden. Standardmaessig sucht es nach Tabellenüberschriften mit `Codeplug\\`.
 
-Als Vergleich von iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig.
+Als Vergleichgrundlage für iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig (Codeplug in CPS Plus öffnen -> Datei -> Export -> Benutzerbericht Strg+J).
 
 Aktuelle Programmversion: `0.4.0`
 
