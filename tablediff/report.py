@@ -5,15 +5,29 @@ from collections import Counter, OrderedDict
 from pathlib import Path
 
 from .assets import REPORT_CSS, REPORT_JS
-from .core import make_anchor, ordered_union, parse_codeplug_tables, row_status, status_counts, value_class
+from .core import (
+    make_anchor,
+    ordered_union,
+    parse_codeplug_tables,
+    row_status,
+    status_counts,
+    value_class,
+)
 from .metadata import APP_NAME
 
 
 def build_report_html(input_files: list[Path], table_marker: str) -> str:
     parsed_files = [parse_codeplug_tables(path, table_marker) for path in input_files]
     table_titles = ordered_union(parsed_files)
-    anchors = {title: make_anchor(title, index) for index, title in enumerate(table_titles, start=1)}
-    total_rows = sum(len(parsed_file[title].rows) for parsed_file in parsed_files for title in parsed_file)
+    anchors = {
+        title: make_anchor(title, index)
+        for index, title in enumerate(table_titles, start=1)
+    }
+    total_rows = sum(
+        len(parsed_file[title].rows)
+        for parsed_file in parsed_files
+        for title in parsed_file
+    )
     report_parts = [
         "<!doctype html>",
         "<html lang='de'>",
@@ -79,9 +93,13 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
         "<input id='toc-search' class='ui5-input' type='search' placeholder='Tabellen suchen' "
         "oninput='filterToc()' aria-label='Inhaltsverzeichnis durchsuchen'>"
     )
-    report_parts.append("<button class='ui5-button' type='button' onclick='clearTocSearch()'>Suche leeren</button>")
+    report_parts.append(
+        "<button class='ui5-button' type='button' onclick='clearTocSearch()'>Suche leeren</button>"
+    )
     report_parts.append("</div>")
-    report_parts.append("<p id='toc-empty' class='toc-empty'>Keine passende Tabelle gefunden.</p>")
+    report_parts.append(
+        "<p id='toc-empty' class='toc-empty'>Keine passende Tabelle gefunden.</p>"
+    )
     report_parts.append("<ul id='toc-list' class='toc'>")
     for title in table_titles:
         anchor = anchors[title]
@@ -115,10 +133,16 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
             report_parts.append(f"<th>{html.escape(path.name)}</th>")
         report_parts.append("</tr></thead><tbody>")
         if not keys:
-            report_parts.append(render_row("Tabelle fehlt oder leer", [None] * len(input_files), "missing"))
+            report_parts.append(
+                render_row(
+                    "Tabelle fehlt oder leer", [None] * len(input_files), "missing"
+                )
+            )
         else:
             for key in keys:
-                values = [rows.get(key) if key in rows else None for rows in per_file_rows]
+                values = [
+                    rows.get(key) if key in rows else None for rows in per_file_rows
+                ]
                 report_parts.append(render_row(key, values, row_status(values)))
 
         report_parts.append("</tbody></table>")
@@ -130,7 +154,9 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
 
 
 def build_report(input_files: list[Path], output_file: Path, table_marker: str) -> None:
-    output_file.write_text(build_report_html(input_files, table_marker), encoding="utf-8")
+    output_file.write_text(
+        build_report_html(input_files, table_marker), encoding="utf-8"
+    )
 
 
 def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
@@ -151,7 +177,9 @@ def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
 
 
 def render_row(key: str, values: list[str | None], status: str) -> str:
-    cells = [f"<tr data-status='{html.escape(status, quote=True)}'><td>{html.escape(key)}</td>"]
+    cells = [
+        f"<tr data-status='{html.escape(status, quote=True)}'><td>{html.escape(key)}</td>"
+    ]
     for value in values:
         css_class = value_class(values, value)
         display_value = "" if value is None else value

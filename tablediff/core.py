@@ -45,9 +45,15 @@ class TableParser(HTMLParser):
 
     def handle_endtag(self, tag: str) -> None:
         tag = tag.lower()
-        if tag in {"td", "th"} and self._table_depth == 1 and self._current_cell_parts is not None:
+        if (
+            tag in {"td", "th"}
+            and self._table_depth == 1
+            and self._current_cell_parts is not None
+        ):
             if self._current_row is not None:
-                self._current_row.append(normalize_text("".join(self._current_cell_parts)))
+                self._current_row.append(
+                    normalize_text("".join(self._current_cell_parts))
+                )
             self._current_cell_parts = None
         elif tag == "tr" and self._table_depth == 1 and self._current_row is not None:
             if self._current_row:
@@ -85,7 +91,9 @@ def parse_tables(path: Path) -> list[HtmlTable]:
     return parser.tables
 
 
-def parse_codeplug_tables(path: Path, table_marker: str) -> OrderedDict[str, CodeplugTable]:
+def parse_codeplug_tables(
+    path: Path, table_marker: str
+) -> OrderedDict[str, CodeplugTable]:
     html_tables = parse_tables(path)
     result: OrderedDict[str, CodeplugTable] = OrderedDict()
 
@@ -94,7 +102,9 @@ def parse_codeplug_tables(path: Path, table_marker: str) -> OrderedDict[str, Cod
         table = html_tables[index]
         title = normalize_text(table.text)
         if table_marker in title:
-            rows = extract_key_value_rows(html_tables[index + 1] if index + 1 < len(html_tables) else None)
+            rows = extract_key_value_rows(
+                html_tables[index + 1] if index + 1 < len(html_tables) else None
+            )
             result[title] = CodeplugTable(title=title, rows=rows)
             index += 2
         else:
@@ -138,7 +148,10 @@ def value_class(values: list[str | None], current: str | None) -> str:
 
     counts = Counter(present_values)
     most_common_count = max(counts.values(), default=0)
-    if counts[current] == most_common_count and list(counts.values()).count(most_common_count) == 1:
+    if (
+        counts[current] == most_common_count
+        and list(counts.values()).count(most_common_count) == 1
+    ):
         return "same"
 
     return "different"

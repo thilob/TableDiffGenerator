@@ -7,13 +7,15 @@ import tempfile
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if (PROJECT_ROOT / "compare_codeplug_html.py").is_file() and str(PROJECT_ROOT) not in sys.path:
+if (PROJECT_ROOT / "compare_codeplug_html.py").is_file() and str(
+    PROJECT_ROOT
+) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from flask import Flask, Response, render_template_string, request
-from werkzeug.utils import secure_filename
+from flask import Flask, Response, render_template_string, request  # noqa: E402
+from werkzeug.utils import secure_filename  # noqa: E402
 
-from tablediff import APP_NAME, APP_VERSION, DEFAULT_TABLE_MARKER, build_report_html
+from tablediff import APP_NAME, APP_VERSION, DEFAULT_TABLE_MARKER, build_report_html  # noqa: E402
 
 
 MAX_FILES = 4
@@ -21,7 +23,9 @@ ALLOWED_EXTENSIONS = {".html", ".htm"}
 
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = int(os.environ.get("MAX_UPLOAD_SIZE", 32 * 1024 * 1024))
+app.config["MAX_CONTENT_LENGTH"] = int(
+    os.environ.get("MAX_UPLOAD_SIZE", 32 * 1024 * 1024)
+)
 
 
 PORTAL_TEMPLATE = """
@@ -202,7 +206,11 @@ def healthz() -> dict[str, str]:
 @app.post("/compare")
 def compare() -> Response | tuple[str, int]:
     table_marker = request.form.get("table_marker", DEFAULT_TABLE_MARKER).strip()
-    uploads = [upload for upload in request.files.getlist("files") if upload and upload.filename]
+    uploads = [
+        upload
+        for upload in request.files.getlist("files")
+        if upload and upload.filename
+    ]
 
     if not 1 <= len(uploads) <= MAX_FILES:
         return render_portal(f"Bitte 1 bis {MAX_FILES} HTML-Dateien auswählen."), 400
@@ -216,7 +224,9 @@ def compare() -> Response | tuple[str, int]:
         if Path(upload.filename).suffix.lower() not in ALLOWED_EXTENSIONS
     ]
     if invalid_files:
-        return render_portal("Nur HTML-Dateien sind erlaubt: " + ", ".join(invalid_files)), 400
+        return render_portal(
+            "Nur HTML-Dateien sind erlaubt: " + ", ".join(invalid_files)
+        ), 400
 
     with tempfile.TemporaryDirectory(prefix="tablediff-web-") as temp_dir:
         input_files: list[Path] = []

@@ -23,8 +23,12 @@ def create_parser() -> argparse.ArgumentParser:
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--version", action="version", version=f"{APP_NAME} {APP_VERSION}")
-    parser.add_argument("files", nargs="*", type=Path, help="HTML-Dateien, die verglichen werden sollen")
+    parser.add_argument(
+        "--version", action="version", version=f"{APP_NAME} {APP_VERSION}"
+    )
+    parser.add_argument(
+        "files", nargs="*", type=Path, help="HTML-Dateien, die verglichen werden sollen"
+    )
     parser.add_argument(
         "-o",
         "--output",

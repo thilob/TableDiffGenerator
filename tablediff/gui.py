@@ -52,22 +52,54 @@ class TableDiffGui:
         title_font = ("Arial", 16)
         section_font = ("Arial", 11, "bold")
 
-        style.configure(".", font=default_font, background=GUI_COLORS["background"], foreground=GUI_COLORS["text"])
+        style.configure(
+            ".",
+            font=default_font,
+            background=GUI_COLORS["background"],
+            foreground=GUI_COLORS["text"],
+        )
         style.configure("Ui5Page.TFrame", background=GUI_COLORS["background"])
-        style.configure("Ui5Panel.TFrame", background=GUI_COLORS["panel"], relief="solid", borderwidth=1)
+        style.configure(
+            "Ui5Panel.TFrame",
+            background=GUI_COLORS["panel"],
+            relief="solid",
+            borderwidth=1,
+        )
         style.configure("Ui5PanelHeader.TFrame", background=GUI_COLORS["panel_header"])
         style.configure("Ui5Toolbar.TFrame", background=GUI_COLORS["panel"])
-        style.configure("Ui5Label.TLabel", background=GUI_COLORS["panel"], foreground=GUI_COLORS["label"])
-        style.configure("Ui5Text.TLabel", background=GUI_COLORS["panel"], foreground=GUI_COLORS["text"])
-        style.configure("Ui5Title.TLabel", background=GUI_COLORS["panel"], foreground=GUI_COLORS["text"], font=title_font)
+        style.configure(
+            "Ui5Label.TLabel",
+            background=GUI_COLORS["panel"],
+            foreground=GUI_COLORS["label"],
+        )
+        style.configure(
+            "Ui5Text.TLabel",
+            background=GUI_COLORS["panel"],
+            foreground=GUI_COLORS["text"],
+        )
+        style.configure(
+            "Ui5Title.TLabel",
+            background=GUI_COLORS["panel"],
+            foreground=GUI_COLORS["text"],
+            font=title_font,
+        )
         style.configure(
             "Ui5Section.TLabel",
             background=GUI_COLORS["panel_header"],
             foreground=GUI_COLORS["text"],
             font=section_font,
         )
-        style.configure("Ui5Status.TLabel", background=GUI_COLORS["background"], foreground=GUI_COLORS["label"])
-        style.configure("Ui5.TEntry", fieldbackground="#ffffff", foreground=GUI_COLORS["text"], padding=5)
+        style.configure(
+            "Ui5Status.TLabel",
+            background=GUI_COLORS["background"],
+            foreground=GUI_COLORS["label"],
+        )
+        style.configure(
+            "Ui5.TEntry",
+            fieldbackground="#ffffff",
+            foreground=GUI_COLORS["text"],
+            padding=5,
+        )
         style.configure(
             "Ui5.TButton",
             background="#ffffff",
@@ -87,8 +119,16 @@ class TableDiffGui:
             darkcolor=GUI_COLORS["link"],
             padding=(14, 7),
         )
-        style.map("Ui5Primary.TButton", background=[("active", "#0854a0")], foreground=[("active", "#ffffff")])
-        style.configure("Ui5.TCheckbutton", background=GUI_COLORS["panel"], foreground=GUI_COLORS["text"])
+        style.map(
+            "Ui5Primary.TButton",
+            background=[("active", "#0854a0")],
+            foreground=[("active", "#ffffff")],
+        )
+        style.configure(
+            "Ui5.TCheckbutton",
+            background=GUI_COLORS["panel"],
+            foreground=GUI_COLORS["text"],
+        )
 
     def _build(self) -> None:
         self.root.columnconfigure(0, weight=1)
@@ -122,7 +162,9 @@ class TableDiffGui:
         header = ttk.Frame(page, padding=(18, 14), style="Ui5Panel.TFrame")
         header.grid(row=0, column=0, sticky="ew", pady=(0, 12))
         header.columnconfigure(0, weight=1)
-        ttk.Label(header, text="Codeplug Vergleich", style="Ui5Title.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(header, text="Codeplug Vergleich", style="Ui5Title.TLabel").grid(
+            row=0, column=0, sticky="w"
+        )
         ttk.Label(
             header,
             text="HTML-Dateien auswählen und einen UI5-ähnlichen Vergleichsreport erzeugen.",
@@ -135,16 +177,22 @@ class TableDiffGui:
 
         panel_header = ttk.Frame(panel, padding=(14, 10), style="Ui5PanelHeader.TFrame")
         panel_header.grid(row=0, column=0, sticky="ew")
-        ttk.Label(panel_header, text="Vergleichsparameter", style="Ui5Section.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(
+            panel_header, text="Vergleichsparameter", style="Ui5Section.TLabel"
+        ).grid(row=0, column=0, sticky="w")
 
         frame = ttk.Frame(panel, padding=14, style="Ui5Toolbar.TFrame")
         frame.grid(row=1, column=0, sticky="nsew")
         frame.columnconfigure(1, weight=1)
 
-        ttk.Label(frame, text="HTML-Dateien", style="Ui5Text.TLabel").grid(row=0, column=0, columnspan=3, sticky="w")
+        ttk.Label(frame, text="HTML-Dateien", style="Ui5Text.TLabel").grid(
+            row=0, column=0, columnspan=3, sticky="w"
+        )
         for index, file_var in enumerate(self.file_vars, start=1):
             row = index
-            ttk.Label(frame, text=f"Datei {index}", style="Ui5Label.TLabel").grid(row=row, column=0, sticky="w", pady=4)
+            ttk.Label(frame, text=f"Datei {index}", style="Ui5Label.TLabel").grid(
+                row=row, column=0, sticky="w", pady=4
+            )
             ttk.Entry(frame, textvariable=file_var, style="Ui5.TEntry").grid(
                 row=row, column=1, sticky="ew", padx=10, pady=4
             )
@@ -153,26 +201,34 @@ class TableDiffGui:
                 text="Auswählen",
                 style="Ui5.TButton",
                 command=lambda i=index - 1: self._select_input(i),
-            ).grid(
-                row=row, column=2, sticky="ew", pady=3
-            )
+            ).grid(row=row, column=2, sticky="ew", pady=3)
 
         marker_row = 5
         ttk.Label(frame, text="Tabellen-Suchbegriff", style="Ui5Label.TLabel").grid(
             row=marker_row, column=0, sticky="w", pady=(14, 4)
         )
         ttk.Entry(frame, textvariable=self.marker_var, style="Ui5.TEntry").grid(
-            row=marker_row, column=1, columnspan=2, sticky="ew", padx=(10, 0), pady=(14, 4)
+            row=marker_row,
+            column=1,
+            columnspan=2,
+            sticky="ew",
+            padx=(10, 0),
+            pady=(14, 4),
         )
 
         output_row = 6
-        ttk.Label(frame, text="Ausgabedatei", style="Ui5Label.TLabel").grid(row=output_row, column=0, sticky="w", pady=4)
+        ttk.Label(frame, text="Ausgabedatei", style="Ui5Label.TLabel").grid(
+            row=output_row, column=0, sticky="w", pady=4
+        )
         ttk.Entry(frame, textvariable=self.output_var, style="Ui5.TEntry").grid(
             row=output_row, column=1, sticky="ew", padx=10, pady=4
         )
-        ttk.Button(frame, text="Speichern unter", style="Ui5.TButton", command=self._select_output).grid(
-            row=output_row, column=2, sticky="ew", pady=4
-        )
+        ttk.Button(
+            frame,
+            text="Speichern unter",
+            style="Ui5.TButton",
+            command=self._select_output,
+        ).grid(row=output_row, column=2, sticky="ew", pady=4)
 
         ttk.Checkbutton(
             frame,
@@ -184,12 +240,15 @@ class TableDiffGui:
         action_frame = ttk.Frame(frame, style="Ui5Toolbar.TFrame")
         action_frame.grid(row=8, column=0, columnspan=3, sticky="ew", pady=(14, 4))
         action_frame.columnconfigure(0, weight=1)
-        ttk.Button(action_frame, text="Vergleich starten", style="Ui5Primary.TButton", command=self._run_compare).grid(
-            row=0, column=1
-        )
-        ttk.Button(action_frame, text="Beenden", style="Ui5.TButton", command=self.root.destroy).grid(
-            row=0, column=2, padx=(8, 0)
-        )
+        ttk.Button(
+            action_frame,
+            text="Vergleich starten",
+            style="Ui5Primary.TButton",
+            command=self._run_compare,
+        ).grid(row=0, column=1)
+        ttk.Button(
+            action_frame, text="Beenden", style="Ui5.TButton", command=self.root.destroy
+        ).grid(row=0, column=2, padx=(8, 0))
 
         ttk.Label(page, textvariable=self.status_var, style="Ui5Status.TLabel").grid(
             row=2, column=0, sticky="w", pady=(10, 0)
@@ -224,7 +283,9 @@ class TableDiffGui:
         if filename:
             self.file_vars[index].set(filename)
             if index == 0:
-                self.output_var.set(str(Path(filename).with_name("tablediff_report.html")))
+                self.output_var.set(
+                    str(Path(filename).with_name("tablediff_report.html"))
+                )
 
     def _select_output(self) -> None:
         filename = filedialog.asksaveasfilename(
@@ -237,7 +298,11 @@ class TableDiffGui:
             self.output_var.set(filename)
 
     def _run_compare(self) -> None:
-        input_files = [Path(file_var.get()) for file_var in self.file_vars if file_var.get().strip()]
+        input_files = [
+            Path(file_var.get())
+            for file_var in self.file_vars
+            if file_var.get().strip()
+        ]
         table_marker = self.marker_var.get()
         output_file = Path(self.output_var.get())
 
@@ -246,12 +311,18 @@ class TableDiffGui:
             return
 
         if not table_marker:
-            messagebox.showerror("Fehler", "Der Tabellen-Suchbegriff darf nicht leer sein.")
+            messagebox.showerror(
+                "Fehler", "Der Tabellen-Suchbegriff darf nicht leer sein."
+            )
             return
 
         missing_files = [path for path in input_files if not path.is_file()]
         if missing_files:
-            messagebox.showerror("Fehler", "Datei nicht gefunden:\n" + "\n".join(str(path) for path in missing_files))
+            messagebox.showerror(
+                "Fehler",
+                "Datei nicht gefunden:\n"
+                + "\n".join(str(path) for path in missing_files),
+            )
             return
 
         try:
@@ -268,7 +339,9 @@ class TableDiffGui:
         if self.open_report_var.get():
             opened = webbrowser.open(output_file.resolve().as_uri())
             if not opened:
-                messagebox.showinfo("Report erzeugt", f"Report wurde erzeugt:\n{output_file}")
+                messagebox.showinfo(
+                    "Report erzeugt", f"Report wurde erzeugt:\n{output_file}"
+                )
 
 
 def run_gui() -> int:
