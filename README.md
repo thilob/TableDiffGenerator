@@ -6,7 +6,7 @@ Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabe
 
 Als Vergleichgrundlage für iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig (Codeplug in CPS Plus öffnen -> Datei -> Export -> Benutzerbericht Strg+J).
 
-Aktuelle Programmversion: `0.4.0`
+Aktuelle Programmversion: `0.4.1`
 
 ## Funktionen
 
@@ -168,7 +168,7 @@ werden und erzeugt Linux-, Windows- und macOS-Archive inklusive SHA256-Dateien.
 Neue Releases sollen die Versionsnummer in `tablediff/metadata.py` erhöhen:
 
 ```python
-APP_VERSION = "0.4.0"
+APP_VERSION = "0.4.1"
 ```
 
 Weitere Details stehen in `RELEASE.md`.
