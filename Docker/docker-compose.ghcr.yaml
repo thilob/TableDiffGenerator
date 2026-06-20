@@ -1,0 +1,21 @@
+services:
+  tablediff-web:
+    image: ghcr.io/thilob/tablediffgenerator-web:0.4.1
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      MAX_UPLOAD_SIZE: "33554432"
+      MAX_FILE_SIZE: "8388608"
+      MAX_TABLES_PER_FILE: "300"
+      MAX_ROWS_PER_TABLE: "5000"
+      MAX_CELLS_PER_TABLE: "20000"
+      MAX_CELL_CHARS: "4096"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped

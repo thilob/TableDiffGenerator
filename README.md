@@ -131,6 +131,19 @@ Alternativ mit Docker Compose:
 docker compose -f Docker/docker-compose.yaml up --build
 ```
 
+Für Dockhand oder andere Deployment-Werkzeuge, die ein bereits veröffentlichtes
+Image aus GHCR ziehen sollen, ist eine separate Compose-Datei vorbereitet:
+
+```bash
+docker compose -f Docker/docker-compose.ghcr.yaml up
+```
+
+Für private GHCR-Images muss der Docker-Host vorher angemeldet sein:
+
+```bash
+echo "DEIN_TOKEN" | docker login ghcr.io -u thilob --password-stdin
+```
+
 ### Kubernetes
 
 Ein Helm Chart und eine Schritt-für-Schritt-Anleitung für Rancher Desktop und
