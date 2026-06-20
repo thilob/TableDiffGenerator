@@ -22,8 +22,8 @@ Der Lernpfad ist:
 Port-Forward -> NodePort -> Ingress
 ```
 
-Im Chart ist die Ingress-Variante fuer Rancher Desktop aktuell aktiv. NodePort
-ist als kommentierte Variante in `values.yaml` erhalten.
+Im Chart ist die Ingress-Variante aus Sicherheitsgründen standardmäßig
+deaktiviert. NodePort ist als kommentierte Variante in `values.yaml` erhalten.
 
 ## Voraussetzungen
 
@@ -131,7 +131,36 @@ kubectl -n tablediff logs -l app.kubernetes.io/name=tablediffgenerator
 
 ## 4. Anwendung öffnen
 
-Die Standardinstallation nutzt Traefik Ingress:
+Die Standardinstallation veröffentlicht die Anwendung nicht nach außen. Für den
+ersten Test eignet sich ein direkter Service-Port-Forward:
+
+```bash
+kubectl -n tablediff port-forward service/tablediffgenerator 8080:80
+```
+
+Danach im Browser öffnen:
+
+```text
+http://127.0.0.1:8080
+```
+
+Der Health-Check der Anwendung ist hier erreichbar:
+
+```text
+http://127.0.0.1:8080/healthz
+```
+
+### Optional: Zugriff per Traefik Ingress
+
+Für Rancher Desktop kann der Ingress bewusst aktiviert werden:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --set ingress.enabled=true
+```
+
+Danach nutzt die Installation Traefik Ingress:
 
 ```text
 http://tablediffgenerator.localhost
@@ -168,25 +197,28 @@ Dieser Weg nutzt weiterhin die Ingress-Regel mit dem Hostnamen
 `tablediffgenerator.localhost`; nur der Traefik-Einstieg wird lokal
 durchgereicht.
 
-### Alternative: direkter Service-Port-Forward
+### Optional: Basic-Auth per Secret
 
-Für den ersten Test:
+Für öffentlich erreichbare Installationen sollte die Webversion mit
+Authentifizierung und TLS betrieben werden. Ein Secret für Basic-Auth kann so
+angelegt werden:
 
 ```bash
-kubectl -n tablediff port-forward service/tablediffgenerator 8080:80
+kubectl -n tablediff create secret generic tablediff-basic-auth \
+  --from-literal=username=tablediff \
+  --from-literal=password='ein-langes-passwort'
 ```
 
-Danach im Browser öffnen:
+Danach Auth im Chart aktivieren:
 
-```text
-http://127.0.0.1:8080
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --set auth.enabled=true \
+  --set auth.existingSecret=tablediff-basic-auth
 ```
 
-Der Health-Check der Anwendung ist hier erreichbar:
-
-```text
-http://127.0.0.1:8080/healthz
-```
+Der Health-Check `/healthz` bleibt ohne Authentifizierung erreichbar.
 
 ## 5. Nachverfolgbar: Zugriff per NodePort
 
@@ -227,7 +259,7 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --set service.type=ClusterIP \
   --set service.nodePort=null \
-  --set ingress.enabled=true
+  --set ingress.enabled=false
 ```
 
 Wenn Rancher die Replikazahl über die Oberfläche verändert hat, kann Helm 4

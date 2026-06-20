@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
 import os
 import sys
 import tempfile
+from http import HTTPStatus
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -13,18 +17,55 @@ if (PROJECT_ROOT / "compare_codeplug_html.py").is_file() and str(
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from flask import Flask, Response, render_template_string, request  # noqa: E402
+from werkzeug.exceptions import RequestEntityTooLarge  # noqa: E402
 from werkzeug.utils import secure_filename  # noqa: E402
 
 from tablediff import APP_NAME, APP_VERSION, DEFAULT_TABLE_MARKER, build_report_html  # noqa: E402
+from tablediff.assets import REPORT_JS  # noqa: E402
+from tablediff.core import DEFAULT_PARSE_LIMITS, ParseLimitError, ParseLimits  # noqa: E402
 
 
 MAX_FILES = 4
+MAX_TABLE_MARKER_CHARS = 128
 ALLOWED_EXTENSIONS = {".html", ".htm"}
+REPORT_JS_HASH = base64.b64encode(hashlib.sha256(REPORT_JS.encode()).digest()).decode()
+AUTH_USERNAME = os.environ.get("WEB_USERNAME")
+AUTH_PASSWORD = os.environ.get("WEB_PASSWORD")
+if bool(AUTH_USERNAME) != bool(AUTH_PASSWORD):
+    raise RuntimeError("WEB_USERNAME und WEB_PASSWORD muessen gemeinsam gesetzt sein.")
+
+
+def get_int_env(name: str, default: int, minimum: int = 1) -> int:
+    raw_value = os.environ.get(name)
+    if raw_value is None:
+        return default
+    try:
+        value = int(raw_value)
+    except ValueError as error:
+        raise RuntimeError(f"{name} muss eine ganze Zahl sein.") from error
+    if value < minimum:
+        raise RuntimeError(f"{name} muss mindestens {minimum} sein.")
+    return value
+
+
+UPLOAD_LIMITS = ParseLimits(
+    max_file_bytes=get_int_env(
+        "MAX_FILE_SIZE", DEFAULT_PARSE_LIMITS.max_file_bytes
+    ),
+    max_tables=get_int_env("MAX_TABLES_PER_FILE", DEFAULT_PARSE_LIMITS.max_tables),
+    max_rows_per_table=get_int_env(
+        "MAX_ROWS_PER_TABLE", DEFAULT_PARSE_LIMITS.max_rows_per_table
+    ),
+    max_cells_per_table=get_int_env(
+        "MAX_CELLS_PER_TABLE", DEFAULT_PARSE_LIMITS.max_cells_per_table
+    ),
+    max_cell_chars=get_int_env("MAX_CELL_CHARS", DEFAULT_PARSE_LIMITS.max_cell_chars),
+)
 
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = int(
-    os.environ.get("MAX_UPLOAD_SIZE", 32 * 1024 * 1024)
+app.config["MAX_CONTENT_LENGTH"] = get_int_env(
+    "MAX_UPLOAD_SIZE", MAX_FILES * UPLOAD_LIMITS.max_file_bytes
 )
 
 
@@ -193,6 +234,71 @@ def render_portal(error: str | None = None) -> str:
     )
 
 
+def auth_required_response() -> Response:
+    response = Response("Authentifizierung erforderlich.", HTTPStatus.UNAUTHORIZED)
+    response.headers["WWW-Authenticate"] = 'Basic realm="TableDiffGenerator"'
+    return response
+
+
+@app.before_request
+def require_basic_auth() -> Response | None:
+    if not AUTH_USERNAME:
+        return None
+    if request.endpoint == "healthz":
+        return None
+
+    authorization = request.authorization
+    if not authorization:
+        return auth_required_response()
+    if not hmac.compare_digest(authorization.username or "", AUTH_USERNAME):
+        return auth_required_response()
+    if not hmac.compare_digest(authorization.password or "", AUTH_PASSWORD or ""):
+        return auth_required_response()
+    return None
+
+
+@app.after_request
+def add_security_headers(response: Response) -> Response:
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault(
+        "Permissions-Policy",
+        "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    )
+    if response.mimetype == "text/html":
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'none'; "
+            "base-uri 'none'; "
+            "form-action 'self'; "
+            "frame-ancestors 'none'; "
+            "img-src 'self' data:; "
+            "style-src 'self' 'unsafe-inline'; "
+            f"script-src 'self' 'sha256-{REPORT_JS_HASH}'",
+        )
+        response.headers.setdefault("Cache-Control", "no-store")
+    return response
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_too_large(_: RequestEntityTooLarge) -> tuple[str, int]:
+    return (
+        render_portal("Die hochgeladenen Dateien sind zu gross."),
+        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+    )
+
+
+@app.errorhandler(ParseLimitError)
+def handle_parse_limit(error: ParseLimitError) -> tuple[str, int]:
+    return render_portal(str(error)), HTTPStatus.BAD_REQUEST
+
+
+@app.errorhandler(ValueError)
+def handle_value_error(error: ValueError) -> tuple[str, int]:
+    return render_portal(str(error)), HTTPStatus.BAD_REQUEST
+
+
 @app.get("/")
 def index() -> str:
     return render_portal()
@@ -217,6 +323,13 @@ def compare() -> Response | tuple[str, int]:
 
     if not table_marker:
         return render_portal("Der Tabellen-Suchbegriff darf nicht leer sein."), 400
+    if len(table_marker) > MAX_TABLE_MARKER_CHARS:
+        return (
+            render_portal(
+                f"Der Tabellen-Suchbegriff darf maximal {MAX_TABLE_MARKER_CHARS} Zeichen lang sein."
+            ),
+            400,
+        )
 
     invalid_files = [
         upload.filename
@@ -231,12 +344,16 @@ def compare() -> Response | tuple[str, int]:
     with tempfile.TemporaryDirectory(prefix="tablediff-web-") as temp_dir:
         input_files: list[Path] = []
         for index, upload in enumerate(uploads, start=1):
-            filename = secure_filename(upload.filename) or f"upload-{index}.html"
+            original_suffix = Path(upload.filename).suffix.lower()
+            safe_stem = secure_filename(Path(upload.filename).stem) or f"upload-{index}"
+            filename = f"{index:02d}-{safe_stem}{original_suffix}"
             target = Path(temp_dir) / filename
             upload.save(target)
+            if target.stat().st_size > UPLOAD_LIMITS.max_file_bytes:
+                raise ParseLimitError("Eine hochgeladene Datei ist zu gross.")
             input_files.append(target)
 
-        report = build_report_html(input_files, table_marker)
+        report = build_report_html(input_files, table_marker, UPLOAD_LIMITS)
 
     return Response(report, mimetype="text/html")
 

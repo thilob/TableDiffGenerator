@@ -22,6 +22,8 @@ Aktuelle Programmversion: `0.4.0`
 - Schaltflächen zum Auf- und Zuklappen aller Tabellen
 - Navigation zurück zum Dateianfang pro Tabelle
 - einfache GUI für Linux und Windows
+- begrenzte Eingabegrößen zum Schutz vor übergroßen HTML-Reports
+- Security-Header und optionale Basic-Auth in der Webversion
 - keine externen Python-Abhängigkeiten
 
 ## Projektstruktur
@@ -93,6 +95,24 @@ python3 -m venv .venv
 
 Danach ist das Portal unter `http://127.0.0.1:8080` erreichbar.
 
+Für eine geschützte Webinstanz können Benutzername und Passwort per
+Umgebungsvariablen gesetzt werden:
+
+```bash
+WEB_USERNAME=tablediff WEB_PASSWORD='ein-langes-passwort' .venv/bin/python Docker/web_app.py
+```
+
+Die wichtigsten Größenlimits sind ebenfalls konfigurierbar:
+
+```text
+MAX_UPLOAD_SIZE      gesamter Request, Standard 33554432 Bytes
+MAX_FILE_SIZE        einzelne Datei, Standard 8388608 Bytes
+MAX_TABLES_PER_FILE  Tabellen pro Datei, Standard 300
+MAX_ROWS_PER_TABLE   Zeilen pro Tabelle, Standard 5000
+MAX_CELLS_PER_TABLE  Zellen pro Tabelle, Standard 20000
+MAX_CELL_CHARS       Zeichen pro Tabellenzelle, Standard 4096
+```
+
 ### Docker
 
 Die Webversion ist für den Betrieb im Container vorbereitet:
@@ -101,6 +121,9 @@ Die Webversion ist für den Betrieb im Container vorbereitet:
 docker build -f Docker/Dockerfile -t tablediffgenerator-web .
 docker run --rm -p 8080:8080 tablediffgenerator-web
 ```
+
+Für öffentlich erreichbare Installationen sollte die Webversion nur hinter TLS
+und mit Authentifizierung betrieben werden.
 
 Alternativ mit Docker Compose:
 
@@ -156,6 +179,9 @@ in `BUILD.md`.
 ## Hinweise
 
 Die Eingabe-HTML-Dateien und erzeugten Reports werden nicht versioniert. Die `.gitignore` schließt `*.html` und `*.htm` aus. Build-Artefakte wie `dist/`, `build/`, `*.zip` und `*.tar.gz` werden ebenfalls ignoriert.
+
+Eine kompakte Sicherheitsbewertung für die Kundenauslieferung steht in
+`SECURITY_REVIEW.md`.
 
 ## Lizenz
 

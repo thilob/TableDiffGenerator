@@ -72,6 +72,10 @@ def main(argv: list[str] | None = None) -> int:
     if not args.table_marker:
         parser.error("Der Tabellen-Suchbegriff darf nicht leer sein.")
 
-    build_report(args.files, args.output, args.table_marker)
+    try:
+        build_report(args.files, args.output, args.table_marker)
+    except ValueError as error:
+        parser.error(str(error))
+
     print(f"Report geschrieben: {args.output}")
     return 0

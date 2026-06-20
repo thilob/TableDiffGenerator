@@ -6,6 +6,8 @@ from pathlib import Path
 
 from .assets import REPORT_CSS, REPORT_JS
 from .core import (
+    DEFAULT_PARSE_LIMITS,
+    ParseLimits,
     make_anchor,
     ordered_union,
     parse_codeplug_tables,
@@ -15,9 +17,17 @@ from .core import (
 )
 from .metadata import APP_NAME
 
+MAX_REPORT_CHARS = 20 * 1024 * 1024
 
-def build_report_html(input_files: list[Path], table_marker: str) -> str:
-    parsed_files = [parse_codeplug_tables(path, table_marker) for path in input_files]
+
+def build_report_html(
+    input_files: list[Path],
+    table_marker: str,
+    limits: ParseLimits = DEFAULT_PARSE_LIMITS,
+) -> str:
+    parsed_files = [
+        parse_codeplug_tables(path, table_marker, limits) for path in input_files
+    ]
     table_titles = ordered_union(parsed_files)
     anchors = {
         title: make_anchor(title, index)
@@ -57,8 +67,8 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
         "<p class='ui5-subtitle'>HTML-Vergleichsreport im UI5/Fiori-Stil</p>",
         "</div>",
         "<div class='ui5-toolbar' aria-label='Tabellenaktionen'>",
-        "<button class='ui5-button' type='button' onclick='setAllDetails(true)'>Alle Tabellen aufklappen</button>",
-        "<button class='ui5-button' type='button' onclick='setAllDetails(false)'>Alle Tabellen zuklappen</button>",
+        "<button class='ui5-button' type='button' data-action='open-all'>Alle Tabellen aufklappen</button>",
+        "<button class='ui5-button' type='button' data-action='close-all'>Alle Tabellen zuklappen</button>",
         "</div>",
         "</div>",
         "<div class='ui5-kpis'>",
@@ -91,10 +101,10 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
     report_parts.append("<div class='toc-search'>")
     report_parts.append(
         "<input id='toc-search' class='ui5-input' type='search' placeholder='Tabellen suchen' "
-        "oninput='filterToc()' aria-label='Inhaltsverzeichnis durchsuchen'>"
+        "aria-label='Inhaltsverzeichnis durchsuchen'>"
     )
     report_parts.append(
-        "<button class='ui5-button' type='button' onclick='clearTocSearch()'>Suche leeren</button>"
+        "<button class='ui5-button' type='button' data-action='clear-toc-search'>Suche leeren</button>"
     )
     report_parts.append("</div>")
     report_parts.append(
@@ -105,7 +115,7 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
         anchor = anchors[title]
         escaped_anchor = html.escape(anchor, quote=True)
         report_parts.append(
-            f"<li><a href='#{escaped_anchor}' onclick=\"openAndJump('{escaped_anchor}');return false;\">"
+            f"<li><a href='#{escaped_anchor}' data-jump='{escaped_anchor}'>"
             f"{html.escape(title)}</a></li>"
         )
     report_parts.append("</ul>")
@@ -124,7 +134,7 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
         report_parts.append(
             f"<summary><span class='summary-title'>{html.escape(title)}</span>"
             f"{render_summary_metrics(anchor, counts)}"
-            "<a class='top-link' href='#top' onclick='event.stopPropagation()'>Nach oben</a></summary>"
+            "<a class='top-link' href='#top'>Nach oben</a></summary>"
         )
         report_parts.append("<div class='table-wrap'>")
         report_parts.append("<table>")
@@ -150,12 +160,20 @@ def build_report_html(input_files: list[Path], table_marker: str) -> str:
         report_parts.append("</details>")
 
     report_parts.extend(["</main>", "</body>", "</html>"])
-    return "\n".join(report_parts)
+    report = "\n".join(report_parts)
+    if len(report) > MAX_REPORT_CHARS:
+        raise ValueError("Der erzeugte Report ist zu gross.")
+    return report
 
 
-def build_report(input_files: list[Path], output_file: Path, table_marker: str) -> None:
+def build_report(
+    input_files: list[Path],
+    output_file: Path,
+    table_marker: str,
+    limits: ParseLimits = DEFAULT_PARSE_LIMITS,
+) -> None:
     output_file.write_text(
-        build_report_html(input_files, table_marker), encoding="utf-8"
+        build_report_html(input_files, table_marker, limits), encoding="utf-8"
     )
 
 
@@ -164,13 +182,13 @@ def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
     return (
         "<span class='summary-metrics'>"
         f"<button type='button' class='summary-label summary-label-same' data-status='same' "
-        f"onclick=\"event.stopPropagation();filterTable('{escaped_anchor}','same',this);\">"
+        f"data-table-id='{escaped_anchor}'>"
         f"{counts['same']} Übereinstimmungen</button>"
         f"<button type='button' class='summary-label summary-label-different' data-status='different' "
-        f"onclick=\"event.stopPropagation();filterTable('{escaped_anchor}','different',this);\">"
+        f"data-table-id='{escaped_anchor}'>"
         f"{counts['different']} Abweichungen</button>"
         f"<button type='button' class='summary-label summary-label-missing' data-status='missing' "
-        f"onclick=\"event.stopPropagation();filterTable('{escaped_anchor}','missing',this);\">"
+        f"data-table-id='{escaped_anchor}'>"
         f"{counts['missing']} Fehlende</button>"
         "</span>"
     )

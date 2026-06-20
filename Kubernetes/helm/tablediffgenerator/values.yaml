@@ -21,9 +21,14 @@ service:
 container:
   port: 8080
   maxUploadSize: "33554432"
+  maxFileSize: "8388608"
+  maxTablesPerFile: "300"
+  maxRowsPerTable: "5000"
+  maxCellsPerTable: "20000"
+  maxCellChars: "4096"
 
 ingress:
-  enabled: true
+  enabled: false
   className: traefik
   annotations: {}
   hosts:
@@ -49,10 +54,19 @@ podSecurityContext:
 
 securityContext:
   allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
   capabilities:
     drop:
       - ALL
+
+tmp:
+  sizeLimit: 64Mi
+
+auth:
+  enabled: false
+  existingSecret: ""
+  usernameKey: username
+  passwordKey: password
 
 nodeSelector: {}
 tolerations: []

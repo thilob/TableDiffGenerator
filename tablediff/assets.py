@@ -253,6 +253,34 @@ function filterTable(id,status,trigger){
         label.classList.toggle('summary-label-active', nextStatus!=='all'&&label.dataset.status===nextStatus);
     });
 }
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('[data-action="open-all"]').forEach(function(button){
+        button.addEventListener('click', function(){setAllDetails(true);});
+    });
+    document.querySelectorAll('[data-action="close-all"]').forEach(function(button){
+        button.addEventListener('click', function(){setAllDetails(false);});
+    });
+    document.querySelectorAll('[data-action="clear-toc-search"]').forEach(function(button){
+        button.addEventListener('click', clearTocSearch);
+    });
+    var tocSearch=document.getElementById('toc-search');
+    if(tocSearch){tocSearch.addEventListener('input', filterToc);}
+    document.querySelectorAll('[data-jump]').forEach(function(link){
+        link.addEventListener('click', function(event){
+            event.preventDefault();
+            openAndJump(link.dataset.jump);
+        });
+    });
+    document.querySelectorAll('.summary-label').forEach(function(button){
+        button.addEventListener('click', function(event){
+            event.stopPropagation();
+            filterTable(button.dataset.tableId, button.dataset.status, button);
+        });
+    });
+    document.querySelectorAll('.top-link').forEach(function(link){
+        link.addEventListener('click', function(event){event.stopPropagation();});
+    });
+});
 """
 
 
