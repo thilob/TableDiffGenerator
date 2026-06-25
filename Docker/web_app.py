@@ -183,7 +183,7 @@ PORTAL_TEMPLATE = """
 <body>
     <header class="shellbar">
         <span class="shell-title">{{ app_name }}</span>
-        <span class="shell-subtitle">Webportal</span>
+        <span class="shell-subtitle">Webportal {{ app_version }}</span>
     </header>
     <main>
         <section class="object-header">
@@ -306,7 +306,7 @@ def index() -> str:
 
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "version": APP_VERSION}
 
 
 @app.post("/compare")

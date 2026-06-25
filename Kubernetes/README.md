@@ -351,8 +351,8 @@ ghcr.io/thilob/tablediffgenerator-web:kubernetes-latest
 Ein Beispiel mit einer eigenen Registry:
 
 ```bash
-docker build -f Docker/Dockerfile -t registry.example.com/tablediffgenerator-web:0.4.1 .
-docker push registry.example.com/tablediffgenerator-web:0.4.1
+docker build -f Docker/Dockerfile -t registry.example.com/tablediffgenerator-web:0.4.2 .
+docker push registry.example.com/tablediffgenerator-web:0.4.2
 ```
 
 Installation mit diesem Image:
@@ -362,7 +362,7 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --create-namespace \
   --set image.repository=registry.example.com/tablediffgenerator-web \
-  --set image.tag=0.4.1
+  --set image.tag=0.4.2
 ```
 
 Wenn die Registry privat ist, wird zusätzlich ein `imagePullSecret` benötigt.
@@ -377,7 +377,7 @@ kubectl -n tablediff create secret docker-registry registry-credentials \
 helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --set image.repository=registry.example.com/tablediffgenerator-web \
-  --set image.tag=0.4.1 \
+  --set image.tag=0.4.2 \
   --set 'imagePullSecrets[0].name=registry-credentials'
 ```
 

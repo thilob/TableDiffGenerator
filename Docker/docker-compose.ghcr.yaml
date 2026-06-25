@@ -1,6 +1,6 @@
 services:
   tablediff-web:
-    image: ghcr.io/thilob/tablediffgenerator-web:0.4.1
+    image: ghcr.io/thilob/tablediffgenerator-web:kubernetes-latest
     ports:
       - "8080:8080"
     environment:

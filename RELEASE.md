@@ -1,6 +1,6 @@
 # Release-Checkliste
 
-Aktuelle Version: `0.4.1`
+Aktuelle Version: `0.4.2`
 
 ## Versionsnummer erhöhen
 
@@ -8,11 +8,11 @@ Vor einem neuen Release die zentrale Versionsnummer in `compare_codeplug_html.py
 erhöhen:
 
 ```python
-APP_VERSION = "0.4.1"
+APP_VERSION = "0.4.2"
 ```
 
 Danach dieselbe Version im GitHub-Actions-Workflow als Eingabe verwenden.
-Empfohlenes Tag-Schema: `v0.4.1`.
+Empfohlenes Tag-Schema: `v0.4.2`.
 
 ## Lokaler Linux-Build
 
@@ -41,7 +41,7 @@ dist\tablediffgenerator.exe --version
 Workflow: `.github/workflows/build-release-assets.yml`
 
 Der Workflow wird manuell gestartet und erwartet eine Version ohne führendes
-`v`, z. B. `0.4.1`. Er erzeugt:
+`v`, z. B. `0.4.2`. Er erzeugt:
 
 - `tablediffgenerator-linux-v<VERSION>.tar.gz`
 - `tablediffgenerator-linux-v<VERSION>.tar.gz.sha256`
@@ -87,7 +87,7 @@ Der Workflow veröffentlicht außerdem einen Commit-bezogenen Tag:
 kubernetes-<kurzer-commit-sha>
 ```
 
-Bei einem Tag-Build kann zusätzlich ein Versions-Tag wie `0.4.1` entstehen.
+Bei einem Tag-Build kann zusätzlich ein Versions-Tag wie `0.4.2` entstehen.
 Für Kubernetes/Rancher ist die GHCR-Variante vorbereitet in:
 
 ```text
