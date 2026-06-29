@@ -3,4 +3,4 @@ name: tablediffgenerator
 description: Web portal for comparing exported HTML table reports.
 type: application
 version: 0.2.2
-appVersion: "0.4.2"
+appVersion: "0.9"
