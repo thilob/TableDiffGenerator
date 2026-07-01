@@ -6,7 +6,7 @@ Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabe
 
 Als Vergleichgrundlage für iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig (Codeplug in CPS Plus öffnen -> Datei -> Export -> Benutzerbericht Strg+J).
 
-Aktuelle Programmversion: `0.9`
+Aktuelle Programmversion: `0.9.1`
 
 ## Funktionen
 
@@ -22,7 +22,7 @@ Aktuelle Programmversion: `0.9`
 - Schaltflächen zum Auf- und Zuklappen aller Tabellen
 - Navigation zurück zum Dateianfang pro Tabelle
 - einfache GUI für Linux und Windows
-- begrenzte Eingabegrößen zum Schutz vor übergroßen HTML-Reports
+- Web-Limits für Uploads und Parser-Komplexität
 - Security-Header und optionale Basic-Auth in der Webversion
 - keine externen Python-Abhängigkeiten
 
@@ -102,7 +102,11 @@ Umgebungsvariablen gesetzt werden:
 WEB_USERNAME=tablediff WEB_PASSWORD='ein-langes-passwort' .venv/bin/python Docker/web_app.py
 ```
 
-Die wichtigsten Größenlimits sind ebenfalls konfigurierbar:
+Die Webversion setzt Upload- und Parser-Limits, damit öffentliche Instanzen
+gegen übergroße Eingaben geschützt sind. CLI, GUI und daraus gebaute
+Einzelprogramme verwenden diese Web-Limits nicht. Die wichtigsten Web-Limits
+sind in `tablediff/web_limits.py` gebündelt und per Umgebungsvariablen
+konfigurierbar:
 
 ```text
 MAX_UPLOAD_SIZE      gesamter Request, Standard 33554432 Bytes
@@ -185,7 +189,7 @@ werden und erzeugt Linux-, Windows- und macOS-Archive inklusive SHA256-Dateien.
 Neue Releases sollen die Versionsnummer in `tablediff/metadata.py` erhöhen:
 
 ```python
-APP_VERSION = "0.9"
+APP_VERSION = "0.9.1"
 ```
 
 Weitere Details stehen in `RELEASE.md`.

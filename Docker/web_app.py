@@ -22,10 +22,11 @@ from werkzeug.utils import secure_filename  # noqa: E402
 
 from tablediff import APP_NAME, APP_VERSION, DEFAULT_TABLE_MARKER, build_report_html  # noqa: E402
 from tablediff.assets import REPORT_JS  # noqa: E402
-from tablediff.core import DEFAULT_PARSE_LIMITS, ParseLimitError, ParseLimits  # noqa: E402
+from tablediff.core import ParseLimitError, ParseLimits  # noqa: E402
+from tablediff.web_limits import DEFAULT_WEB_PARSE_LIMITS  # noqa: E402
 
 
-MAX_FILES = 4
+MAX_FILES = 2
 MAX_TABLE_MARKER_CHARS = 128
 ALLOWED_EXTENSIONS = {".html", ".htm"}
 REPORT_JS_HASH = base64.b64encode(hashlib.sha256(REPORT_JS.encode()).digest()).decode()
@@ -50,16 +51,18 @@ def get_int_env(name: str, default: int, minimum: int = 1) -> int:
 
 UPLOAD_LIMITS = ParseLimits(
     max_file_bytes=get_int_env(
-        "MAX_FILE_SIZE", DEFAULT_PARSE_LIMITS.max_file_bytes
+        "MAX_FILE_SIZE", DEFAULT_WEB_PARSE_LIMITS.max_file_bytes
     ),
-    max_tables=get_int_env("MAX_TABLES_PER_FILE", DEFAULT_PARSE_LIMITS.max_tables),
+    max_tables=get_int_env("MAX_TABLES_PER_FILE", DEFAULT_WEB_PARSE_LIMITS.max_tables),
     max_rows_per_table=get_int_env(
-        "MAX_ROWS_PER_TABLE", DEFAULT_PARSE_LIMITS.max_rows_per_table
+        "MAX_ROWS_PER_TABLE", DEFAULT_WEB_PARSE_LIMITS.max_rows_per_table
     ),
     max_cells_per_table=get_int_env(
-        "MAX_CELLS_PER_TABLE", DEFAULT_PARSE_LIMITS.max_cells_per_table
+        "MAX_CELLS_PER_TABLE", DEFAULT_WEB_PARSE_LIMITS.max_cells_per_table
     ),
-    max_cell_chars=get_int_env("MAX_CELL_CHARS", DEFAULT_PARSE_LIMITS.max_cell_chars),
+    max_cell_chars=get_int_env(
+        "MAX_CELL_CHARS", DEFAULT_WEB_PARSE_LIMITS.max_cell_chars
+    ),
 )
 
 

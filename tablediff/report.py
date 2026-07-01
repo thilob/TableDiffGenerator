@@ -6,7 +6,6 @@ from pathlib import Path
 
 from .assets import REPORT_CSS, REPORT_JS
 from .core import (
-    DEFAULT_PARSE_LIMITS,
     ParseLimits,
     make_anchor,
     ordered_union,
@@ -23,7 +22,7 @@ MAX_REPORT_CHARS = 20 * 1024 * 1024
 def build_report_html(
     input_files: list[Path],
     table_marker: str,
-    limits: ParseLimits = DEFAULT_PARSE_LIMITS,
+    limits: ParseLimits | None = None,
 ) -> str:
     parsed_files = [
         parse_codeplug_tables(path, table_marker, limits) for path in input_files
@@ -170,7 +169,7 @@ def build_report(
     input_files: list[Path],
     output_file: Path,
     table_marker: str,
-    limits: ParseLimits = DEFAULT_PARSE_LIMITS,
+    limits: ParseLimits | None = None,
 ) -> None:
     output_file.write_text(
         build_report_html(input_files, table_marker, limits), encoding="utf-8"

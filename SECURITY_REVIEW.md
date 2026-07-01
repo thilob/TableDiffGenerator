@@ -11,7 +11,7 @@ Diese Bewertung nutzt CVSS-v3.1-Schweregrade als Orientierung:
 
 ## Umgesetzte Härtungen
 
-- Upload- und Parser-Limits für Dateigröße, Tabellen, Zeilen, Zellen und Zelllänge.
+- Web-Upload- und Parser-Limits für Dateigröße, Tabellen, Zeilen, Zellen und Zelllänge.
 - Begrenzung der erzeugten Reportgröße.
 - Kontrollierte Fehlerantworten für zu große oder zu komplexe Eingaben.
 - Security-Header für HTML-Antworten, inklusive CSP, `nosniff`, Frame-Schutz und `no-store`.

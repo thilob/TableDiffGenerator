@@ -10,14 +10,11 @@ from typing import Iterable
 
 @dataclass(frozen=True)
 class ParseLimits:
-    max_file_bytes: int = 8 * 1024 * 1024 *10
-    max_tables: int = 3000
-    max_rows_per_table: int = 50000
-    max_cells_per_table: int = 200000
-    max_cell_chars: int = 40960
-
-
-DEFAULT_PARSE_LIMITS = ParseLimits()
+    max_file_bytes: int
+    max_tables: int
+    max_rows_per_table: int
+    max_cells_per_table: int
+    max_cell_chars: int
 
 
 class ParseLimitError(ValueError):
@@ -40,7 +37,7 @@ class CodeplugTable:
 
 
 class TableParser(HTMLParser):
-    def __init__(self, limits: ParseLimits = DEFAULT_PARSE_LIMITS) -> None:
+    def __init__(self, limits: ParseLimits | None = None) -> None:
         super().__init__(convert_charrefs=True)
         self.limits = limits
         self.tables: list[HtmlTable] = []
@@ -51,8 +48,8 @@ class TableParser(HTMLParser):
         self._cells_in_current_table = 0
         self._current_cell_chars = 0
 
-    def _ensure_limit(self, condition: bool, message: str) -> None:
-        if not condition:
+    def _ensure_maximum(self, value: int, maximum: int, message: str) -> None:
+        if value > maximum:
             raise ParseLimitError(message)
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -77,10 +74,12 @@ class TableParser(HTMLParser):
         ):
             if self._current_row is not None:
                 self._cells_in_current_table += 1
-                self._ensure_limit(
-                    self._cells_in_current_table <= self.limits.max_cells_per_table,
-                    "Eine Tabelle enthaelt zu viele Zellen.",
-                )
+                if self.limits is not None:
+                    self._ensure_maximum(
+                        self._cells_in_current_table,
+                        self.limits.max_cells_per_table,
+                        "Eine Tabelle enthaelt zu viele Zellen.",
+                    )
                 self._current_row.append(
                     normalize_text("".join(self._current_cell_parts))
                 )
@@ -88,28 +87,34 @@ class TableParser(HTMLParser):
         elif tag == "tr" and self._table_depth == 1 and self._current_row is not None:
             if self._current_row:
                 self._rows.append(self._current_row)
-                self._ensure_limit(
-                    len(self._rows) <= self.limits.max_rows_per_table,
-                    "Eine Tabelle enthaelt zu viele Zeilen.",
-                )
+                if self.limits is not None:
+                    self._ensure_maximum(
+                        len(self._rows),
+                        self.limits.max_rows_per_table,
+                        "Eine Tabelle enthaelt zu viele Zeilen.",
+                    )
             self._current_row = None
         elif tag == "table" and self._table_depth > 0:
             if self._table_depth == 1:
                 self.tables.append(HtmlTable(self._rows))
-                self._ensure_limit(
-                    len(self.tables) <= self.limits.max_tables,
-                    "Die Eingabedatei enthaelt zu viele Tabellen.",
-                )
+                if self.limits is not None:
+                    self._ensure_maximum(
+                        len(self.tables),
+                        self.limits.max_tables,
+                        "Die Eingabedatei enthaelt zu viele Tabellen.",
+                    )
                 self._rows = []
             self._table_depth -= 1
 
     def handle_data(self, data: str) -> None:
         if self._table_depth == 1 and self._current_cell_parts is not None:
             self._current_cell_chars += len(data)
-            self._ensure_limit(
-                self._current_cell_chars <= self.limits.max_cell_chars,
-                "Eine Tabellenzelle ist zu gross.",
-            )
+            if self.limits is not None:
+                self._ensure_maximum(
+                    self._current_cell_chars,
+                    self.limits.max_cell_chars,
+                    "Eine Tabellenzelle ist zu gross.",
+                )
             self._current_cell_parts.append(data)
 
 
@@ -117,9 +122,9 @@ def normalize_text(value: str) -> str:
     return " ".join(value.replace("\xa0", " ").split())
 
 
-def read_text(path: Path, limits: ParseLimits = DEFAULT_PARSE_LIMITS) -> str:
+def read_text(path: Path, limits: ParseLimits | None = None) -> str:
     data = path.read_bytes()
-    if len(data) > limits.max_file_bytes:
+    if limits is not None and len(data) > limits.max_file_bytes:
         raise ParseLimitError("Die Eingabedatei ist zu gross.")
     for encoding in ("utf-8-sig", "utf-16", "cp1252", "latin-1"):
         try:
@@ -130,7 +135,7 @@ def read_text(path: Path, limits: ParseLimits = DEFAULT_PARSE_LIMITS) -> str:
 
 
 def parse_tables(
-    path: Path, limits: ParseLimits = DEFAULT_PARSE_LIMITS
+    path: Path, limits: ParseLimits | None = None
 ) -> list[HtmlTable]:
     parser = TableParser(limits)
     parser.feed(read_text(path, limits))
@@ -141,7 +146,7 @@ def parse_tables(
 def parse_codeplug_tables(
     path: Path,
     table_marker: str,
-    limits: ParseLimits = DEFAULT_PARSE_LIMITS,
+    limits: ParseLimits | None = None,
 ) -> OrderedDict[str, CodeplugTable]:
     html_tables = parse_tables(path, limits)
     result: OrderedDict[str, CodeplugTable] = OrderedDict()
