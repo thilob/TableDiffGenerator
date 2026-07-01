@@ -10,11 +10,11 @@ from typing import Iterable
 
 @dataclass(frozen=True)
 class ParseLimits:
-    max_file_bytes: int = 8 * 1024 * 1024
-    max_tables: int = 300
-    max_rows_per_table: int = 5000
-    max_cells_per_table: int = 20000
-    max_cell_chars: int = 4096
+    max_file_bytes: int = 8 * 1024 * 1024 *10
+    max_tables: int = 3000
+    max_rows_per_table: int = 50000
+    max_cells_per_table: int = 200000
+    max_cell_chars: int = 40960
 
 
 DEFAULT_PARSE_LIMITS = ParseLimits()
