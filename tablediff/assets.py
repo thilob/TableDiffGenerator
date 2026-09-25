@@ -322,19 +322,25 @@ function exportCsv(){
     link.remove();
     window.setTimeout(function(){URL.revokeObjectURL(url);},0);
 }
-function filterTable(id,status,trigger){
+function statusMatchesFilter(rowStatus,filterStatus){
+    return rowStatus===filterStatus||
+        (filterStatus==='diff'&&(rowStatus==='different'||rowStatus==='missing'));
+}
+function filterTable(id,trigger){
     var table=document.getElementById(id);
-    if(!table){return;}
-    var nextStatus=status;
-    if(trigger&&trigger.classList.contains('summary-label-active')){nextStatus='all';}
+    if(!table||!trigger){return;}
+    var isActive=!trigger.classList.contains('summary-label-active');
+    trigger.classList.toggle('summary-label-active',isActive);
+    trigger.setAttribute('aria-pressed',isActive?'true':'false');
+    var activeStatuses=Array.from(table.querySelectorAll('.summary-label-active')).map(function(label){
+        return label.dataset.status;
+    });
     table.open=true;
     table.querySelectorAll('tbody tr').forEach(function(row){
-        var isDiff=row.dataset.status==='different'||row.dataset.status==='missing';
-        var matches=nextStatus==='all'||row.dataset.status===nextStatus||(nextStatus==='diff'&&isDiff);
+        var matches=activeStatuses.length===0||activeStatuses.some(function(filterStatus){
+            return statusMatchesFilter(row.dataset.status,filterStatus);
+        });
         row.style.display=matches?'':'none';
-    });
-    table.querySelectorAll('.summary-label').forEach(function(label){
-        label.classList.toggle('summary-label-active', nextStatus!=='all'&&label.dataset.status===nextStatus);
     });
 }
 document.addEventListener('DOMContentLoaded', function(){
@@ -364,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.summary-label').forEach(function(button){
         button.addEventListener('click', function(event){
             event.stopPropagation();
-            filterTable(button.dataset.tableId, button.dataset.status, button);
+            filterTable(button.dataset.tableId, button);
         });
     });
     document.querySelectorAll('.top-link').forEach(function(link){

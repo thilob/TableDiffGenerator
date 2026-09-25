@@ -86,10 +86,15 @@ Der PDF-Export öffnet das Druckfenster des Browsers, in dem der Report als PDF
 gespeichert werden kann. Der CSV-Export erzeugt eine UTF-8-Datei mit
 Semikolon-Trennung, die sich unter anderem mit Excel öffnen lässt.
 
-Die Option `Nur sichtbare Zeilen` ist standardmäßig aktiviert. Dadurch werden
-gesetzte Tabellenfilter einschließlich des kombinierten `Diff`-Filters bei
-beiden Exporten berücksichtigt. Wird die Option deaktiviert, enthalten PDF und
-CSV unabhängig von den Filtern alle Ergebniszeilen.
+Die vier Tabellenfilter `Übereinstimmungen`, `Abweichungen`, `Fehlende` und
+`Diff` können einzeln oder gleichzeitig aktiviert werden. Bei mehreren aktiven
+Filtern wird eine Zeile angezeigt, sobald sie zu mindestens einem Filter passt.
+Ohne aktive Filter werden alle Zeilen angezeigt.
+
+Die Option `Nur sichtbare Zeilen (Filter übernehmen)` ist standardmäßig
+aktiviert. Dadurch werden die gesetzten Filterkombinationen bei PDF- und
+CSV-Export berücksichtigt. Wird die Option deaktiviert, enthalten beide
+Exporte unabhängig von den Filtern alle Ergebniszeilen.
 
 Versionsausgabe:
 

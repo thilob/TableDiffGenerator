@@ -20,6 +20,7 @@ class RenderSummaryMetricsTests(TestCase):
 
         self.assertIn("data-status='diff'", metrics)
         self.assertIn("5 Diff</button>", metrics)
+        self.assertEqual(4, metrics.count("aria-pressed='false'"))
 
     def test_report_contains_pdf_and_csv_exports(self) -> None:
         report = build_report_html(
@@ -36,6 +37,8 @@ class RenderSummaryMetricsTests(TestCase):
         self.assertIn("data-file-name='tablediff_ui5_a.html'", report)
         self.assertIn("function exportPdf()", report)
         self.assertIn("function exportCsv()", report)
+        self.assertIn("function statusMatchesFilter", report)
+        self.assertIn("activeStatuses.some", report)
         self.assertIn("@media print", report)
         self.assertIn("class='ui5-section ui5-panel toc-panel'", report)
         self.assertIn("if(/^[=+@-]/.test(text))", report)

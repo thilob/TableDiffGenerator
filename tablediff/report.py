@@ -68,7 +68,7 @@ def build_report_html(
         "<button class='ui5-button' type='button' data-action='close-all'>Alle Tabellen zuklappen</button>",
         "<button class='ui5-button' type='button' data-action='export-pdf'>Als PDF exportieren</button>",
         "<button class='ui5-button' type='button' data-action='export-csv'>Als CSV exportieren</button>",
-        "<label class='ui5-checkbox'><input id='export-visible-only' type='checkbox' checked>Nur sichtbare Zeilen</label>",
+        "<label class='ui5-checkbox'><input id='export-visible-only' type='checkbox' checked>Nur sichtbare Zeilen (Filter übernehmen)</label>",
         "</div>",
         "</div>",
         "<div class='ui5-kpis'>",
@@ -186,16 +186,16 @@ def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
     diff_count = counts["different"] + counts["missing"]
     return (
         "<span class='summary-metrics'>"
-        f"<button type='button' class='summary-label summary-label-same' data-status='same' "
+        f"<button type='button' class='summary-label summary-label-same' data-status='same' aria-pressed='false' "
         f"data-table-id='{escaped_anchor}'>"
         f"{counts['same']} Übereinstimmungen</button>"
-        f"<button type='button' class='summary-label summary-label-different' data-status='different' "
+        f"<button type='button' class='summary-label summary-label-different' data-status='different' aria-pressed='false' "
         f"data-table-id='{escaped_anchor}'>"
         f"{counts['different']} Abweichungen</button>"
-        f"<button type='button' class='summary-label summary-label-missing' data-status='missing' "
+        f"<button type='button' class='summary-label summary-label-missing' data-status='missing' aria-pressed='false' "
         f"data-table-id='{escaped_anchor}'>"
         f"{counts['missing']} Fehlende</button>"
-        f"<button type='button' class='summary-label summary-label-diff' data-status='diff' "
+        f"<button type='button' class='summary-label summary-label-diff' data-status='diff' aria-pressed='false' "
         f"data-table-id='{escaped_anchor}'>"
         f"{diff_count} Diff</button>"
         "</span>"
