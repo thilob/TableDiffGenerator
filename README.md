@@ -111,9 +111,9 @@ konfigurierbar:
 ```text
 MAX_UPLOAD_SIZE      gesamter Request, Standard 33554432 Bytes
 MAX_FILE_SIZE        einzelne Datei, Standard 8388608 Bytes
-MAX_TABLES_PER_FILE  Tabellen pro Datei, Standard 300
-MAX_ROWS_PER_TABLE   Zeilen pro Tabelle, Standard 5000
-MAX_CELLS_PER_TABLE  Zellen pro Tabelle, Standard 20000
+MAX_TABLES_PER_FILE  Tabellen pro Datei, Standard 1500
+MAX_ROWS_PER_TABLE   Zeilen pro Tabelle, Standard 50000
+MAX_CELLS_PER_TABLE  Zellen pro Tabelle, Standard 100000
 MAX_CELL_CHARS       Zeichen pro Tabellenzelle, Standard 4096
 ```
 
