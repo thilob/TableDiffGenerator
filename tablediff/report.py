@@ -68,6 +68,9 @@ def build_report_html(
         "<div class='ui5-toolbar' aria-label='Tabellenaktionen'>",
         "<button class='ui5-button' type='button' data-action='open-all'>Alle Tabellen aufklappen</button>",
         "<button class='ui5-button' type='button' data-action='close-all'>Alle Tabellen zuklappen</button>",
+        "<button class='ui5-button' type='button' data-action='export-pdf'>Als PDF exportieren</button>",
+        "<button class='ui5-button' type='button' data-action='export-csv'>Als CSV exportieren</button>",
+        "<label class='ui5-checkbox'><input id='export-visible-only' type='checkbox' checked>Nur sichtbare Zeilen</label>",
         "</div>",
         "</div>",
         "<div class='ui5-kpis'>",
@@ -89,12 +92,16 @@ def build_report_html(
     ]
 
     for path in input_files:
-        report_parts.append(f"<span class='ui5-token'>{html.escape(str(path))}</span>")
+        report_parts.append(
+            f"<span class='ui5-token input-file-token' "
+            f"data-file-name='{html.escape(path.name, quote=True)}'>"
+            f"{html.escape(str(path))}</span>"
+        )
     report_parts.append("</div>")
     report_parts.append("</div>")
     report_parts.append("</div>")
     report_parts.append("</section>")
-    report_parts.append("<section class='ui5-section ui5-panel'>")
+    report_parts.append("<section class='ui5-section ui5-panel toc-panel'>")
     report_parts.append("<details class='toc-details' open>")
     report_parts.append("<summary>Inhaltsverzeichnis</summary>")
     report_parts.append("<div class='toc-search'>")
@@ -178,6 +185,7 @@ def build_report(
 
 def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
     escaped_anchor = html.escape(anchor, quote=True)
+    diff_count = counts["different"] + counts["missing"]
     return (
         "<span class='summary-metrics'>"
         f"<button type='button' class='summary-label summary-label-same' data-status='same' "
@@ -189,6 +197,9 @@ def render_summary_metrics(anchor: str, counts: Counter[str]) -> str:
         f"<button type='button' class='summary-label summary-label-missing' data-status='missing' "
         f"data-table-id='{escaped_anchor}'>"
         f"{counts['missing']} Fehlende</button>"
+        f"<button type='button' class='summary-label summary-label-diff' data-status='diff' "
+        f"data-table-id='{escaped_anchor}'>"
+        f"{diff_count} Diff</button>"
         "</span>"
     )
 

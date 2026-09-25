@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version without leading v, e.g. 0.4.2"
+        description: "Release version without leading v, e.g. 1.0"
         required: true
-        default: "0.4.2"
+        default: "1.0"
 
 jobs:
   build-linux:

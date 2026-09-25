@@ -106,6 +106,8 @@ h1{margin:0;color:var(--sapTextColor);font-size:26px;font-weight:400;letter-spac
 }
 .ui5-button:hover{background:var(--sapButton_Hover_Background)}
 .ui5-button:focus-visible,.ui5-input:focus-visible{outline:2px solid var(--sapHighlightColor);outline-offset:1px}
+.ui5-checkbox{display:inline-flex;align-items:center;gap:6px;min-height:32px;color:var(--sapContent_LabelColor);font-weight:700;cursor:pointer}
+.ui5-checkbox input{width:16px;height:16px;margin:0;accent-color:var(--sapHighlightColor)}
 .ui5-button-icon{padding:5px 10px}
 .ui5-input{
     min-height:32px;
@@ -166,6 +168,7 @@ h1{margin:0;color:var(--sapTextColor);font-size:26px;font-weight:400;letter-spac
 .summary-label-same{background:var(--sapSuccessBackground);border:1px solid var(--sapSuccessBorderColor);color:#107e3e}
 .summary-label-different{background:var(--sapWarningBackground);border:1px solid var(--sapWarningBorderColor);color:#8a4100}
 .summary-label-missing{background:#ffcaca;border:1px solid var(--sapErrorBorderColor);color:#8f0000}
+.summary-label-diff{background:var(--sapInformationBackground);border:1px solid var(--sapHighlightColor);color:#174a7c}
 .summary-label-active{box-shadow:0 0 0 2px var(--sapHighlightColor)}
 .top-link{
     flex:0 0 auto;
@@ -214,6 +217,23 @@ td:first-child{font-weight:700;background:#fafafa}
     .ui5-button,.ui5-input{width:100%}
     .summary-metrics{width:100%;order:3}
 }
+@media print{
+    @page{size:auto;margin:12mm}
+    html{scroll-behavior:auto}
+    body{background:#fff;font-size:10pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .ui5-shellbar,.ui5-toolbar,.toc-panel,.top-link{display:none!important}
+    .ui5-page{max-width:none;margin:0;padding:0}
+    .ui5-object-page-header,.ui5-panel{box-shadow:none}
+    .ui5-object-page-header{padding:0 0 10mm;border:0}
+    .ui5-section{margin-top:6mm}
+    .codeplug-table{overflow:visible;break-before:auto}
+    .codeplug-table>summary{break-after:avoid}
+    .table-wrap{overflow:visible}
+    table{font-size:9pt}
+    thead{display:table-header-group}
+    tr{break-inside:avoid}
+    th,td{padding:4px 6px}
+}
 """
 
 
@@ -240,6 +260,68 @@ function clearTocSearch(){
     filterToc();
     document.getElementById('toc-search').focus();
 }
+function exportVisibleOnly(){
+    var option=document.getElementById('export-visible-only');
+    return option&&option.checked;
+}
+var printState=null;
+function preparePrint(){
+    if(printState){return;}
+    var details=Array.from(document.querySelectorAll('details.codeplug-table'));
+    var rows=Array.from(document.querySelectorAll('details.codeplug-table tbody tr'));
+    printState={
+        detailsOpen:details.map(function(item){return item.open;}),
+        rowDisplay:rows.map(function(row){return row.style.display;})
+    };
+    details.forEach(function(item){item.open=true;});
+    if(!exportVisibleOnly()){
+        rows.forEach(function(row){row.style.display='';});
+    }
+}
+function restoreAfterPrint(){
+    if(!printState){return;}
+    var details=Array.from(document.querySelectorAll('details.codeplug-table'));
+    var rows=Array.from(document.querySelectorAll('details.codeplug-table tbody tr'));
+    details.forEach(function(item,index){item.open=printState.detailsOpen[index];});
+    rows.forEach(function(row,index){row.style.display=printState.rowDisplay[index];});
+    printState=null;
+}
+function exportPdf(){
+    preparePrint();
+    window.print();
+}
+function csvCell(value){
+    var text=String(value);
+    if(/^[=+@-]/.test(text)){text="'"+text;}
+    return '"'+text.replace(/"/g,'""')+'"';
+}
+function cellText(cell){
+    return cell.textContent.replace(/\\u00a0/g,' ').trim();
+}
+function exportCsv(){
+    var fileNames=Array.from(document.querySelectorAll('.input-file-token')).map(function(token){
+        return token.dataset.fileName;
+    });
+    var csvRows=[['Tabelle','Parameter','Status'].concat(fileNames)];
+    document.querySelectorAll('details.codeplug-table').forEach(function(tablePanel){
+        var title=cellText(tablePanel.querySelector('.summary-title'));
+        tablePanel.querySelectorAll('tbody tr').forEach(function(row){
+            if(exportVisibleOnly()&&row.style.display==='none'){return;}
+            var cells=Array.from(row.querySelectorAll('td')).map(cellText);
+            csvRows.push([title,cells[0],row.dataset.status].concat(cells.slice(1)));
+        });
+    });
+    var csv='\\uFEFF'+csvRows.map(function(row){return row.map(csvCell).join(';');}).join('\\r\\n');
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var link=document.createElement('a');
+    link.href=url;
+    link.download='tablediffgenerator-vergleich.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function(){URL.revokeObjectURL(url);},0);
+}
 function filterTable(id,status,trigger){
     var table=document.getElementById(id);
     if(!table){return;}
@@ -247,7 +329,9 @@ function filterTable(id,status,trigger){
     if(trigger&&trigger.classList.contains('summary-label-active')){nextStatus='all';}
     table.open=true;
     table.querySelectorAll('tbody tr').forEach(function(row){
-        row.style.display=nextStatus==='all'||row.dataset.status===nextStatus?'':'none';
+        var isDiff=row.dataset.status==='different'||row.dataset.status==='missing';
+        var matches=nextStatus==='all'||row.dataset.status===nextStatus||(nextStatus==='diff'&&isDiff);
+        row.style.display=matches?'':'none';
     });
     table.querySelectorAll('.summary-label').forEach(function(label){
         label.classList.toggle('summary-label-active', nextStatus!=='all'&&label.dataset.status===nextStatus);
@@ -259,6 +343,12 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     document.querySelectorAll('[data-action="close-all"]').forEach(function(button){
         button.addEventListener('click', function(){setAllDetails(false);});
+    });
+    document.querySelectorAll('[data-action="export-pdf"]').forEach(function(button){
+        button.addEventListener('click', exportPdf);
+    });
+    document.querySelectorAll('[data-action="export-csv"]').forEach(function(button){
+        button.addEventListener('click', exportCsv);
     });
     document.querySelectorAll('[data-action="clear-toc-search"]').forEach(function(button){
         button.addEventListener('click', clearTocSearch);
@@ -280,6 +370,8 @@ document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.top-link').forEach(function(link){
         link.addEventListener('click', function(event){event.stopPropagation();});
     });
+    window.addEventListener('beforeprint', preparePrint);
+    window.addEventListener('afterprint', restoreAfterPrint);
 });
 """
 

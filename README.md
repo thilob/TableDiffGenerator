@@ -6,7 +6,7 @@ Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabe
 
 Als Vergleichgrundlage für iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig (Codeplug in CPS Plus öffnen -> Datei -> Export -> Benutzerbericht Strg+J).
 
-Aktuelle Programmversion: `0.9.1`
+Aktuelle Programmversion: `1.0`
 
 ## Funktionen
 
@@ -17,6 +17,9 @@ Aktuelle Programmversion: `0.9.1`
   - hellgrün für gleiche Werte
   - orange für abweichende Werte
   - rot für fehlende Tabellen oder Keys
+- Tabellenfilter für gleiche, abweichende, fehlende und alle unterschiedlichen (`Diff`) Werte
+- PDF-Export über das Drucklayout des Browsers
+- CSV-Export für Excel und andere Tabellenprogramme
 - einklappbare Tabellen im Report
 - Inhaltsverzeichnis mit Suchfunktion
 - Schaltflächen zum Auf- und Zuklappen aller Tabellen
@@ -75,6 +78,18 @@ Kurzform:
 ```bash
 python3 compare_codeplug_html.py file1.html file2.html -m "Codeplug\\" -o vergleich.html
 ```
+
+### Ergebnis exportieren
+
+Der erzeugte HTML-Report enthält Schaltflächen für den PDF- und CSV-Export.
+Der PDF-Export öffnet das Druckfenster des Browsers, in dem der Report als PDF
+gespeichert werden kann. Der CSV-Export erzeugt eine UTF-8-Datei mit
+Semikolon-Trennung, die sich unter anderem mit Excel öffnen lässt.
+
+Die Option `Nur sichtbare Zeilen` ist standardmäßig aktiviert. Dadurch werden
+gesetzte Tabellenfilter einschließlich des kombinierten `Diff`-Filters bei
+beiden Exporten berücksichtigt. Wird die Option deaktiviert, enthalten PDF und
+CSV unabhängig von den Filtern alle Ergebniszeilen.
 
 Versionsausgabe:
 
@@ -189,7 +204,7 @@ werden und erzeugt Linux-, Windows- und macOS-Archive inklusive SHA256-Dateien.
 Neue Releases sollen die Versionsnummer in `tablediff/metadata.py` erhöhen:
 
 ```python
-APP_VERSION = "0.9.1"
+APP_VERSION = "1.0"
 ```
 
 Weitere Details stehen in `RELEASE.md`.
