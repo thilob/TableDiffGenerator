@@ -19,6 +19,8 @@ Diese Bewertung nutzt CVSS-v3.1-Schweregrade als Orientierung:
 - CSV-Export entschärft Werte mit typischen Formelpräfixen, bevor sie von Tabellenprogrammen geöffnet werden.
 - Optionale Basic-Auth über `WEB_USERNAME` und `WEB_PASSWORD`.
 - Docker-Image läuft als nicht privilegierter Benutzer.
+- Gunicorn nutzt einen Thread-Worker, konfigurierbare Timeouts und protokolliert HTTP-Zugriffe.
+- Das Docker-Image enthält einen HTTP-Healthcheck auf `/healthz`.
 - Docker Compose nutzt schreibgeschütztes Root-Dateisystem, `tmpfs`, `no-new-privileges` und entfernt Linux-Capabilities.
 - Kubernetes nutzt schreibgeschütztes Root-Dateisystem mit explizitem `/tmp`-`emptyDir`.
 - Helm-Ingress ist standardmäßig deaktiviert.

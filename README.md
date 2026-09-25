@@ -162,6 +162,11 @@ Diese Variante nutzt `ghcr.io/thilob/tablediffgenerator-web:latest`. Der Tag
 wird bei erfolgreichen Builds von `main` aktualisiert, damit Docker- und
 Dockhand-Installationen neue Image-Digests erkennen können.
 
+Die GHCR-Compose-Datei setzt `pull_policy: always`. Ein erneutes Deployment in
+Dockhand zieht dadurch den aktuellen Digest und erzeugt den Container mit dem
+neuen Image. Der Container meldet seinen Zustand über den HTTP-Healthcheck
+`/healthz`.
+
 Ein reiner Container-Neustart lädt einen geänderten Image-Tag nicht zwingend
 erneut herunter. Das veröffentlichte Image wird mit folgenden Befehlen
 aktualisiert und der Container anschließend neu erzeugt:
@@ -174,6 +179,26 @@ docker compose -f Docker/docker-compose.ghcr.yaml up -d --force-recreate
 Für reproduzierbare Installationen kann der `image`-Eintrag der Compose-Datei
 auf den festen Release-Tag
 `ghcr.io/thilob/tablediffgenerator-web:1.0` gesetzt werden.
+
+Gunicorn verwendet den Thread-Worker `gthread`, damit unvollständige oder
+langsame Verbindungen nicht den einzigen synchronen Worker blockieren. Die
+Vorgaben können bei Bedarf über `GUNICORN_WORKERS`, `GUNICORN_THREADS`,
+`GUNICORN_TIMEOUT`, `GUNICORN_GRACEFUL_TIMEOUT` und `GUNICORN_KEEP_ALIVE`
+überschrieben werden.
+
+In Dockhand sollte für den Dienst kein eigener `command` oder `entrypoint`
+hinterlegt sein, da dieser den gehärteten Startbefehl aus dem Docker-Image
+überschreiben würde. Nach einem Redeploy können Image-Version, Healthcheck und
+Worker-Typ so geprüft werden:
+
+```bash
+curl http://127.0.0.1:8080/healthz
+docker compose -f Docker/docker-compose.ghcr.yaml ps
+docker compose -f Docker/docker-compose.ghcr.yaml logs tablediff-web
+```
+
+Die Statusantwort muss die aktuelle Programmversion enthalten. Im Startlog muss
+`Using worker: gthread` statt `Using worker: sync` erscheinen.
 
 Für private GHCR-Images muss der Docker-Host vorher angemeldet sein:
 
