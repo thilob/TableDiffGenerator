@@ -98,6 +98,32 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
 Das ist vor allem für Rancher Server oder andere Cluster sinnvoll, die nicht auf
 deinen lokalen Docker-Image-Speicher zugreifen können.
 
+Die Values-Datei verwendet den fortlaufend aktualisierten Tag
+`kubernetes-latest`. Weil dessen `imagePullPolicy` standardmäßig
+`IfNotPresent` ist, lädt ein reiner Pod-Neustart nicht zwingend eine neue
+Image-Digest. Für eine reproduzierbare Installation wird deshalb der feste
+Release-Tag empfohlen:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --create-namespace \
+  -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml \
+  --set image.tag=1.0
+```
+
+Soll bewusst `kubernetes-latest` verfolgt werden, muss das Image erneut gezogen
+und ein neuer Pod erzeugt werden:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml \
+  --set image.pullPolicy=Always
+kubectl -n tablediff rollout restart deployment/tablediffgenerator
+kubectl -n tablediff rollout status deployment/tablediffgenerator
+```
+
 ## 2. Namespace anlegen
 
 ```bash
@@ -303,12 +329,14 @@ kubectl delete namespace tablediff
 
 ## Ingress
 
-Ingress ist die aktive Standardvariante des Charts. Rancher Desktop bringt bei
-aktivierter Traefik-Option bereits einen passenden Ingress Controller mit.
+Ingress ist im Chart standardmäßig deaktiviert. Rancher Desktop bringt bei
+aktivierter Traefik-Option bereits einen passenden Ingress Controller mit. Die
+Ingress-Ressource wird ausdrücklich eingeschaltet:
 
 ```bash
 helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
-  --namespace tablediff
+  --namespace tablediff \
+  --set ingress.enabled=true
 ```
 
 Danach:
@@ -346,6 +374,17 @@ Das Chart nutzt dann:
 
 ```text
 ghcr.io/thilob/tablediffgenerator-web:kubernetes-latest
+```
+
+Für einen stabilen Stand sollte auch auf Rancher Server der feste Release-Tag
+gesetzt werden:
+
+```bash
+helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
+  --namespace tablediff \
+  --create-namespace \
+  -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml \
+  --set image.tag=1.0
 ```
 
 Ein Beispiel mit einer eigenen Registry:

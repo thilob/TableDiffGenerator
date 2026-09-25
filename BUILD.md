@@ -141,6 +141,34 @@ Versionsprüfung:
 dist\tablediffgenerator.exe --version
 ```
 
+## macOS
+
+Auf macOS wird dasselbe Buildskript wie unter Linux verwendet. Voraussetzung
+ist eine Python-Installation mit Tk-Unterstützung, wenn auch die GUI genutzt
+werden soll.
+
+```bash
+python3 --version
+./build-pyinstaller.sh
+./dist/tablediffgenerator --version
+```
+
+PyInstaller erzeugt immer ein Programm für das Betriebssystem, auf dem der
+Build ausgeführt wird. Ein Linux- oder Windows-Build kann daher kein
+macOS-Programm ersetzen.
+
+## Tests
+
+Die Regressionstests können vor einem Build ohne zusätzliche Testbibliothek
+ausgeführt werden:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+Unter Windows kann entsprechend `python` anstelle von `python3` verwendet
+werden.
+
 ## Typische Probleme
 
 ### Python wird nicht gefunden

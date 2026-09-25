@@ -87,7 +87,12 @@ Der Workflow veröffentlicht außerdem einen Commit-bezogenen Tag:
 kubernetes-<kurzer-commit-sha>
 ```
 
-Bei einem Tag-Build kann zusätzlich ein Versions-Tag wie `1.0` entstehen.
+Beim manuellen Start kann über die Eingabe `image_tag` zusätzlich ein fester
+Versions-Tag wie `1.0` veröffentlicht werden. Ein Push nach `main` erzeugt nur
+`kubernetes-latest` und den Commit-bezogenen Tag. Für ein Release wird der
+Container-Workflow deshalb zusätzlich manuell mit derselben Versionsnummer wie
+der GitHub-Release gestartet.
+
 Für Kubernetes/Rancher ist die GHCR-Variante vorbereitet in:
 
 ```text

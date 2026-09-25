@@ -24,10 +24,10 @@ Aktuelle Programmversion: `1.0`
 - Inhaltsverzeichnis mit Suchfunktion
 - Schaltflächen zum Auf- und Zuklappen aller Tabellen
 - Navigation zurück zum Dateianfang pro Tabelle
-- einfache GUI für Linux und Windows
+- einfache GUI für Linux, Windows und macOS
 - Web-Limits für Uploads und Parser-Komplexität
 - Security-Header und optionale Basic-Auth in der Webversion
-- keine externen Python-Abhängigkeiten
+- keine externen Python-Abhängigkeiten für CLI und GUI
 
 ## Projektstruktur
 
@@ -99,7 +99,7 @@ python3 compare_codeplug_html.py --version
 
 ## Webportal
 
-Die Webversion stellt ein Upload-Portal bereit, in dem 1 bis 4 HTML-Dateien
+Die Webversion stellt ein Upload-Portal bereit, in dem 1 bis 2 HTML-Dateien
 ausgewählt und direkt im Browser verglichen werden können.
 
 ```bash
@@ -124,7 +124,8 @@ sind in `tablediff/web_limits.py` gebündelt und per Umgebungsvariablen
 konfigurierbar:
 
 ```text
-MAX_UPLOAD_SIZE      gesamter Request, Standard 33554432 Bytes
+MAX_UPLOAD_SIZE      gesamter Request, direkt gestartet 16777216 Bytes,
+                     in Docker Compose und Helm 33554432 Bytes
 MAX_FILE_SIZE        einzelne Datei, Standard 8388608 Bytes
 MAX_TABLES_PER_FILE  Tabellen pro Datei, Standard 1500
 MAX_ROWS_PER_TABLE   Zeilen pro Tabelle, Standard 50000
@@ -160,6 +161,19 @@ docker compose -f Docker/docker-compose.ghcr.yaml up
 Diese Variante nutzt `ghcr.io/thilob/tablediffgenerator-web:kubernetes-latest`,
 damit lokale Update-Werkzeuge eine neu veröffentlichte Image-Digest erkennen
 koennen.
+
+Ein reiner Container-Neustart lädt einen geänderten Image-Tag nicht zwingend
+erneut herunter. Das veröffentlichte Image wird mit folgenden Befehlen
+aktualisiert und der Container anschließend neu erzeugt:
+
+```bash
+docker compose -f Docker/docker-compose.ghcr.yaml pull
+docker compose -f Docker/docker-compose.ghcr.yaml up -d --force-recreate
+```
+
+Für reproduzierbare Installationen kann der `image`-Eintrag der Compose-Datei
+stattdessen auf den festen Release-Tag
+`ghcr.io/thilob/tablediffgenerator-web:1.0` gesetzt werden.
 
 Für private GHCR-Images muss der Docker-Host vorher angemeldet sein:
 

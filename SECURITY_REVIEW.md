@@ -1,6 +1,6 @@
 # Sicherheitsbewertung
 
-Stand: 2026-06-20
+Stand: 2026-09-25
 
 Diese Bewertung nutzt CVSS-v3.1-Schweregrade als Orientierung:
 
@@ -16,6 +16,7 @@ Diese Bewertung nutzt CVSS-v3.1-Schweregrade als Orientierung:
 - Kontrollierte Fehlerantworten für zu große oder zu komplexe Eingaben.
 - Security-Header für HTML-Antworten, inklusive CSP, `nosniff`, Frame-Schutz und `no-store`.
 - Report-Interaktion ohne Inline-Eventhandler; Web-CSP erlaubt nur das bekannte Report-Skript per SHA-256-Hash.
+- CSV-Export entschärft Werte mit typischen Formelpräfixen, bevor sie von Tabellenprogrammen geöffnet werden.
 - Optionale Basic-Auth über `WEB_USERNAME` und `WEB_PASSWORD`.
 - Docker-Image läuft als nicht privilegierter Benutzer.
 - Docker Compose nutzt schreibgeschütztes Root-Dateisystem, `tmpfs`, `no-new-privileges` und entfernt Linux-Capabilities.
