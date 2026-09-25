@@ -158,9 +158,9 @@ Image aus GHCR ziehen sollen, ist eine separate Compose-Datei vorbereitet:
 docker compose -f Docker/docker-compose.ghcr.yaml up
 ```
 
-Diese Variante nutzt `ghcr.io/thilob/tablediffgenerator-web:kubernetes-latest`,
-damit lokale Update-Werkzeuge eine neu veröffentlichte Image-Digest erkennen
-koennen.
+Diese Variante nutzt `ghcr.io/thilob/tablediffgenerator-web:latest`. Der Tag
+wird bei erfolgreichen Builds von `main` aktualisiert, damit Docker- und
+Dockhand-Installationen neue Image-Digests erkennen können.
 
 Ein reiner Container-Neustart lädt einen geänderten Image-Tag nicht zwingend
 erneut herunter. Das veröffentlichte Image wird mit folgenden Befehlen
@@ -172,7 +172,7 @@ docker compose -f Docker/docker-compose.ghcr.yaml up -d --force-recreate
 ```
 
 Für reproduzierbare Installationen kann der `image`-Eintrag der Compose-Datei
-stattdessen auf den festen Release-Tag
+auf den festen Release-Tag
 `ghcr.io/thilob/tablediffgenerator-web:1.0` gesetzt werden.
 
 Für private GHCR-Images muss der Docker-Host vorher angemeldet sein:

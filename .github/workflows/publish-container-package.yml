@@ -6,7 +6,7 @@ on:
       image_tag:
         description: "Additional image tag to publish"
         required: false
-        default: "kubernetes-latest"
+        default: ""
   push:
     branches:
       - main
@@ -54,6 +54,10 @@ jobs:
           short_sha="${GITHUB_SHA::12}"
           tags="${IMAGE_NAME}:kubernetes-latest"
           tags="${tags}"$'\n'"${IMAGE_NAME}:kubernetes-${short_sha}"
+
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            tags="${tags}"$'\n'"${IMAGE_NAME}:latest"
+          fi
 
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && -n "${{ inputs.image_tag }}" ]]; then
             tags="${tags}"$'\n'"${IMAGE_NAME}:${{ inputs.image_tag }}"

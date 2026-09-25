@@ -75,9 +75,10 @@ Dateien ändern:
 - `compare_codeplug_html.py`
 - `tablediff/**`
 
-Zusätzlich kann der Workflow manuell gestartet werden. Standard-Tag:
+Ein Push nach `main` veröffentlicht folgende fortlaufend aktualisierte Tags:
 
 ```text
+latest
 kubernetes-latest
 ```
 
@@ -88,10 +89,10 @@ kubernetes-<kurzer-commit-sha>
 ```
 
 Beim manuellen Start kann über die Eingabe `image_tag` zusätzlich ein fester
-Versions-Tag wie `1.0` veröffentlicht werden. Ein Push nach `main` erzeugt nur
-`kubernetes-latest` und den Commit-bezogenen Tag. Für ein Release wird der
-Container-Workflow deshalb zusätzlich manuell mit derselben Versionsnummer wie
-der GitHub-Release gestartet.
+Versions-Tag wie `1.0` veröffentlicht werden. Ein Push nach `main` erzeugt
+`latest`, `kubernetes-latest` und den Commit-bezogenen Tag. Für ein Release wird
+der Container-Workflow zusätzlich manuell mit derselben Versionsnummer wie der
+GitHub-Release gestartet.
 
 Für Kubernetes/Rancher ist die GHCR-Variante vorbereitet in:
 
