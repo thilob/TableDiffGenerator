@@ -108,6 +108,8 @@ h1{margin:0;color:var(--sapTextColor);font-size:26px;font-weight:400;letter-spac
 .ui5-button:focus-visible,.ui5-input:focus-visible{outline:2px solid var(--sapHighlightColor);outline-offset:1px}
 .ui5-checkbox{display:inline-flex;align-items:center;gap:6px;min-height:32px;color:var(--sapContent_LabelColor);font-weight:700;cursor:pointer}
 .ui5-checkbox input{width:16px;height:16px;margin:0;accent-color:var(--sapHighlightColor)}
+.export-filters{display:flex;align-items:center;gap:12px;flex:1 1 100%;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--sapList_BorderColor)}
+.export-filter-title{color:var(--sapTextColor);font-weight:700}
 .ui5-button-icon{padding:5px 10px}
 .ui5-input{
     min-height:32px;
@@ -264,30 +266,64 @@ function exportVisibleOnly(){
     var option=document.getElementById('export-visible-only');
     return option&&option.checked;
 }
+function selectedExportStatuses(){
+    return Array.from(document.querySelectorAll('.export-status-filter:checked')).map(function(option){
+        return option.value;
+    });
+}
+function rowMatchesExport(row,statuses){
+    return statuses.some(function(filterStatus){
+        return statusMatchesFilter(row.dataset.status,filterStatus);
+    });
+}
+function validateExportStatuses(){
+    var statuses=selectedExportStatuses();
+    if(statuses.length===0){
+        window.alert('Bitte mindestens einen Exportfilter auswählen.');
+        return null;
+    }
+    return statuses;
+}
 var printState=null;
-function preparePrint(){
-    if(printState){return;}
+function preparePrint(statuses){
+    if(printState){return true;}
+    statuses=statuses||selectedExportStatuses();
+    if(statuses.length===0){return false;}
     var details=Array.from(document.querySelectorAll('details.codeplug-table'));
     var rows=Array.from(document.querySelectorAll('details.codeplug-table tbody tr'));
     printState={
         detailsOpen:details.map(function(item){return item.open;}),
+        detailsDisplay:details.map(function(item){return item.style.display;}),
         rowDisplay:rows.map(function(row){return row.style.display;})
     };
-    details.forEach(function(item){item.open=true;});
-    if(!exportVisibleOnly()){
-        rows.forEach(function(row){row.style.display='';});
-    }
+    var visibleOnly=exportVisibleOnly();
+    rows.forEach(function(row,index){
+        var visibleInTable=!visibleOnly||printState.rowDisplay[index]!=='none';
+        row.style.display=rowMatchesExport(row,statuses)&&visibleInTable?'':'none';
+    });
+    details.forEach(function(item){
+        item.open=true;
+        var hasVisibleRow=Array.from(item.querySelectorAll('tbody tr')).some(function(row){
+            return row.style.display!=='none';
+        });
+        item.style.display=hasVisibleRow?'':'none';
+    });
+    return true;
 }
 function restoreAfterPrint(){
     if(!printState){return;}
     var details=Array.from(document.querySelectorAll('details.codeplug-table'));
     var rows=Array.from(document.querySelectorAll('details.codeplug-table tbody tr'));
-    details.forEach(function(item,index){item.open=printState.detailsOpen[index];});
+    details.forEach(function(item,index){
+        item.open=printState.detailsOpen[index];
+        item.style.display=printState.detailsDisplay[index];
+    });
     rows.forEach(function(row,index){row.style.display=printState.rowDisplay[index];});
     printState=null;
 }
 function exportPdf(){
-    preparePrint();
+    var statuses=validateExportStatuses();
+    if(!statuses||!preparePrint(statuses)){return;}
     window.print();
 }
 function csvCell(value){
@@ -299,6 +335,8 @@ function cellText(cell){
     return cell.textContent.replace(/\\u00a0/g,' ').trim();
 }
 function exportCsv(){
+    var statuses=validateExportStatuses();
+    if(!statuses){return;}
     var fileNames=Array.from(document.querySelectorAll('.input-file-token')).map(function(token){
         return token.dataset.fileName;
     });
@@ -306,6 +344,7 @@ function exportCsv(){
     document.querySelectorAll('details.codeplug-table').forEach(function(tablePanel){
         var title=cellText(tablePanel.querySelector('.summary-title'));
         tablePanel.querySelectorAll('tbody tr').forEach(function(row){
+            if(!rowMatchesExport(row,statuses)){return;}
             if(exportVisibleOnly()&&row.style.display==='none'){return;}
             var cells=Array.from(row.querySelectorAll('td')).map(cellText);
             csvRows.push([title,cells[0],row.dataset.status].concat(cells.slice(1)));
@@ -376,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.top-link').forEach(function(link){
         link.addEventListener('click', function(event){event.stopPropagation();});
     });
-    window.addEventListener('beforeprint', preparePrint);
+    window.addEventListener('beforeprint', function(){preparePrint();});
     window.addEventListener('afterprint', restoreAfterPrint);
 });
 """

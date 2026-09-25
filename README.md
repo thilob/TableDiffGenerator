@@ -87,14 +87,19 @@ gespeichert werden kann. Der CSV-Export erzeugt eine UTF-8-Datei mit
 Semikolon-Trennung, die sich unter anderem mit Excel öffnen lässt.
 
 Die vier Tabellenfilter `Übereinstimmungen`, `Abweichungen`, `Fehlende` und
-`Diff` können einzeln oder gleichzeitig aktiviert werden. Bei mehreren aktiven
-Filtern wird eine Zeile angezeigt, sobald sie zu mindestens einem Filter passt.
-Ohne aktive Filter werden alle Zeilen angezeigt.
+`Diff` können pro Tabelle einzeln oder gleichzeitig aktiviert werden. Bei
+mehreren aktiven Filtern wird eine Zeile angezeigt, sobald sie zu mindestens
+einem Filter passt. Ohne aktive Filter werden alle Zeilen angezeigt.
 
-Die Option `Nur sichtbare Zeilen (Filter übernehmen)` ist standardmäßig
-aktiviert. Dadurch werden die gesetzten Filterkombinationen bei PDF- und
-CSV-Export berücksichtigt. Wird die Option deaktiviert, enthalten beide
-Exporte unabhängig von den Filtern alle Ergebniszeilen.
+Für PDF und CSV stehen dieselben vier Filter zusätzlich zentral im Kopf des
+Reports zur Verfügung. Sie können einzeln oder als ODER-Kombination ausgewählt
+werden und gelten für alle Tabellen. Standardmäßig sind Übereinstimmungen,
+Abweichungen und Fehlende ausgewählt, sodass der vollständige Report exportiert
+wird. `Diff` umfasst Abweichungen und fehlende Werte.
+
+Die Option `Tabellenfilter zusätzlich übernehmen` schränkt die zentrale
+Exportauswahl auf die aktuell sichtbaren Tabellenzeilen ein. Ohne diese Option
+ist der Export unabhängig von den pro Tabelle gesetzten Filtern.
 
 Versionsausgabe:
 
