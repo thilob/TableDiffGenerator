@@ -1,7 +1,10 @@
+import base64
+import hashlib
 from collections import Counter
 from pathlib import Path
 from unittest import TestCase
 
+from tablediff.assets import REPORT_JS
 from tablediff.report import build_report_html, render_summary_metrics
 
 
@@ -36,3 +39,20 @@ class RenderSummaryMetricsTests(TestCase):
         self.assertIn("@media print", report)
         self.assertIn("class='ui5-section ui5-panel toc-panel'", report)
         self.assertIn("if(/^[=+@-]/.test(text))", report)
+
+    def test_embedded_script_matches_web_csp_hash(self) -> None:
+        report = build_report_html(
+            [PROJECT_ROOT / "testdata" / "tablediff_ui5_a.html"],
+            "Codeplug\\",
+        )
+        embedded_script = report.partition("<script>")[2].partition("</script>")[0]
+
+        expected_hash = base64.b64encode(
+            hashlib.sha256(REPORT_JS.encode()).digest()
+        ).decode()
+        embedded_hash = base64.b64encode(
+            hashlib.sha256(embedded_script.encode()).digest()
+        ).decode()
+
+        self.assertEqual(REPORT_JS, embedded_script)
+        self.assertEqual(expected_hash, embedded_hash)
