@@ -26,7 +26,7 @@ from tablediff.core import ParseLimitError, ParseLimits  # noqa: E402
 from tablediff.web_limits import DEFAULT_WEB_PARSE_LIMITS  # noqa: E402
 
 
-MAX_FILES = 2
+MAX_FILES = 4
 MAX_TABLE_MARKER_CHARS = 128
 ALLOWED_EXTENSIONS = {".html", ".htm"}
 REPORT_JS_HASH = base64.b64encode(hashlib.sha256(REPORT_JS.encode()).digest()).decode()
