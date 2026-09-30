@@ -6,7 +6,7 @@ Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabe
 
 Als Vergleichgrundlage für iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig (Codeplug in CPS Plus öffnen -> Datei -> Export -> Benutzerbericht Strg+J).
 
-Aktuelle Programmversion: `1.0.1`
+Aktuelle Programmversion: `1.0.2`
 
 ## Funktionen
 
@@ -134,10 +134,12 @@ sind in `tablediff/web_limits.py` gebündelt und per Umgebungsvariablen
 konfigurierbar:
 
 ```text
-MAX_UPLOAD_SIZE      gesamter Request, Standard sowie in Docker Compose und
-                     Helm 33554432 Bytes
-MAX_FILE_SIZE        einzelne Datei, Standard 8388608 Bytes
-MAX_TABLES_PER_FILE  Tabellen pro Datei, Standard 1500
+MAX_UPLOAD_SIZE      gesamter Request, Standard und Docker Compose 33554432 Bytes,
+                     Helm 303554432 Bytes
+MAX_FILE_SIZE        einzelne Datei, Standard und Docker Compose 8388608 Bytes,
+                     Helm 83088608 Bytes
+MAX_TABLES_PER_FILE  Tabellen pro Datei, Standard und Docker Compose 1500,
+                     Helm 15000
 MAX_ROWS_PER_TABLE   Zeilen pro Tabelle, Standard 50000
 MAX_CELLS_PER_TABLE  Zellen pro Tabelle, Standard 100000
 MAX_CELL_CHARS       Zeichen pro Tabellenzelle, Standard 4096
@@ -188,7 +190,7 @@ docker compose -f Docker/docker-compose.ghcr.yaml up -d --force-recreate
 
 Für reproduzierbare Installationen kann der `image`-Eintrag der Compose-Datei
 auf den festen Release-Tag
-`ghcr.io/thilob/tablediffgenerator-web:1.0.1` gesetzt werden.
+`ghcr.io/thilob/tablediffgenerator-web:1.0.2` gesetzt werden.
 
 Gunicorn verwendet den Thread-Worker `gthread`, damit unvollständige oder
 langsame Verbindungen nicht den einzigen synchronen Worker blockieren. Die
@@ -253,7 +255,7 @@ werden und erzeugt Linux-, Windows- und macOS-Archive inklusive SHA256-Dateien.
 Neue Releases sollen die Versionsnummer in `tablediff/metadata.py` erhöhen:
 
 ```python
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.0.2"
 ```
 
 Weitere Details stehen in `RELEASE.md`.

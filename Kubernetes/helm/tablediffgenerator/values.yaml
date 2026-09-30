@@ -20,9 +20,9 @@ service:
 
 container:
   port: 8080
-  maxUploadSize: "33554432"
-  maxFileSize: "8388608"
-  maxTablesPerFile: "1500"
+  maxUploadSize: "303554432"
+  maxFileSize: "83088608"
+  maxTablesPerFile: "15000"
   maxRowsPerTable: "50000"
   maxCellsPerTable: "100000"
   maxCellChars: "4096"

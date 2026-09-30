@@ -109,7 +109,7 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --create-namespace \
   -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml \
-  --set image.tag=1.0.1
+  --set image.tag=1.0.2
 ```
 
 Soll bewusst `kubernetes-latest` verfolgt werden, muss das Image erneut gezogen
@@ -384,14 +384,14 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --create-namespace \
   -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml \
-  --set image.tag=1.0.1
+  --set image.tag=1.0.2
 ```
 
 Ein Beispiel mit einer eigenen Registry:
 
 ```bash
-docker build -f Docker/Dockerfile -t registry.example.com/tablediffgenerator-web:1.0.1 .
-docker push registry.example.com/tablediffgenerator-web:1.0.1
+docker build -f Docker/Dockerfile -t registry.example.com/tablediffgenerator-web:1.0.2 .
+docker push registry.example.com/tablediffgenerator-web:1.0.2
 ```
 
 Installation mit diesem Image:
@@ -401,7 +401,7 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --create-namespace \
   --set image.repository=registry.example.com/tablediffgenerator-web \
-  --set image.tag=1.0.1
+  --set image.tag=1.0.2
 ```
 
 Wenn die Registry privat ist, wird zusätzlich ein `imagePullSecret` benötigt.
@@ -416,7 +416,7 @@ kubectl -n tablediff create secret docker-registry registry-credentials \
 helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --set image.repository=registry.example.com/tablediffgenerator-web \
-  --set image.tag=1.0.1 \
+  --set image.tag=1.0.2 \
   --set 'imagePullSecrets[0].name=registry-credentials'
 ```
 
@@ -435,8 +435,18 @@ Häufige Werte:
 - `service.type`: standardmäßig `ClusterIP`; `NodePort` ist als kommentierte Variante dokumentiert
 - `service.nodePort`: fester NodePort, z. B. `30080`, wenn NodePort explizit aktiviert wird
 - `container.maxUploadSize`: maximale Uploadgröße in Bytes
+- `container.maxFileSize`: maximale Größe einer einzelnen Datei in Bytes
+- `container.maxTablesPerFile`: maximale Tabellenanzahl je Datei
 - `ingress.enabled`: Ingress ein- oder ausschalten
 - `resources`: CPU- und Speichergrenzen
+
+Das Chart erlaubt standardmäßig einen Gesamt-Upload von `303554432` Bytes,
+eine Dateigröße von `83088608` Bytes und `15000` Tabellen je Datei. Diese
+Helm-Werte sind bewusst höher als die Standard- und Docker-Compose-Werte. Das
+Gesamtlimit gilt für den vollständigen Request; deshalb können nicht vier
+Dateien mit jeweils maximaler Größe gleichzeitig hochgeladen werden. Bei großen
+Reports sollten die Speichergrenzen unter `resources` anhand der realen Daten
+und der gleichzeitigen Anfragen erhöht und überwacht werden.
 
 Werte können beim Installieren überschrieben werden:
 
