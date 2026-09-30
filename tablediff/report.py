@@ -66,6 +66,13 @@ def build_report_html(
         "<div class='ui5-toolbar' aria-label='Tabellenaktionen'>",
         "<button class='ui5-button' type='button' data-action='open-all'>Alle Tabellen aufklappen</button>",
         "<button class='ui5-button' type='button' data-action='close-all'>Alle Tabellen zuklappen</button>",
+        "<div class='global-filters' role='group' aria-label='Statusfilter für alle Tabellen'>",
+        "<span class='global-filter-title'>Tabellenfilter:</span>",
+        "<button type='button' class='summary-label summary-label-same global-filter-button' data-status='same' aria-pressed='false'>Übereinstimmungen</button>",
+        "<button type='button' class='summary-label summary-label-different global-filter-button' data-status='different' aria-pressed='false'>Abweichungen</button>",
+        "<button type='button' class='summary-label summary-label-missing global-filter-button' data-status='missing' aria-pressed='false'>Fehlende</button>",
+        "<button type='button' class='summary-label summary-label-diff global-filter-button' data-status='diff' aria-pressed='false'>Diff</button>",
+        "</div>",
         "<button class='ui5-button' type='button' data-action='export-pdf'>Als PDF exportieren</button>",
         "<button class='ui5-button' type='button' data-action='export-csv'>Als CSV exportieren</button>",
         "<div class='export-filters' role='group' aria-label='Statusfilter für den Export'>",
@@ -107,7 +114,7 @@ def build_report_html(
     report_parts.append("</div>")
     report_parts.append("</section>")
     report_parts.append("<section class='ui5-section ui5-panel toc-panel'>")
-    report_parts.append("<details class='toc-details' open>")
+    report_parts.append("<details class='toc-details'>")
     report_parts.append("<summary>Inhaltsverzeichnis</summary>")
     report_parts.append("<div class='toc-search'>")
     report_parts.append(

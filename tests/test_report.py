@@ -49,8 +49,13 @@ class RenderSummaryMetricsTests(TestCase):
         self.assertIn("function rowMatchesExport", report)
         self.assertIn("document.querySelectorAll('details.codeplug-table')", report)
         self.assertIn("filterStatus==='diff'", report)
+        self.assertEqual(4, report.count("global-filter-button' data-status="))
+        self.assertIn("function filterAllTables", report)
+        self.assertIn("function applyStatusesToTable", report)
         self.assertIn("@media print", report)
         self.assertIn("class='ui5-section ui5-panel toc-panel'", report)
+        self.assertIn("<details class='toc-details'>", report)
+        self.assertNotIn("<details class='toc-details' open>", report)
         self.assertIn("if(/^[=+@-]/.test(text))", report)
 
     def test_embedded_script_matches_web_csp_hash(self) -> None:

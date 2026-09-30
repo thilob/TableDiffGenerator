@@ -108,6 +108,8 @@ h1{margin:0;color:var(--sapTextColor);font-size:26px;font-weight:400;letter-spac
 .ui5-button:focus-visible,.ui5-input:focus-visible{outline:2px solid var(--sapHighlightColor);outline-offset:1px}
 .ui5-checkbox{display:inline-flex;align-items:center;gap:6px;min-height:32px;color:var(--sapContent_LabelColor);font-weight:700;cursor:pointer}
 .ui5-checkbox input{width:16px;height:16px;margin:0;accent-color:var(--sapHighlightColor)}
+.global-filters{display:flex;align-items:center;gap:8px;flex:1 1 100%;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--sapList_BorderColor)}
+.global-filter-title{color:var(--sapTextColor);font-weight:700}
 .export-filters{display:flex;align-items:center;gap:12px;flex:1 1 100%;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--sapList_BorderColor)}
 .export-filter-title{color:var(--sapTextColor);font-weight:700}
 .ui5-button-icon{padding:5px 10px}
@@ -365,21 +367,41 @@ function statusMatchesFilter(rowStatus,filterStatus){
     return rowStatus===filterStatus||
         (filterStatus==='diff'&&(rowStatus==='different'||rowStatus==='missing'));
 }
-function filterTable(id,trigger){
-    var table=document.getElementById(id);
-    if(!table||!trigger){return;}
-    var isActive=!trigger.classList.contains('summary-label-active');
-    trigger.classList.toggle('summary-label-active',isActive);
-    trigger.setAttribute('aria-pressed',isActive?'true':'false');
-    var activeStatuses=Array.from(table.querySelectorAll('.summary-label-active')).map(function(label){
-        return label.dataset.status;
-    });
-    table.open=true;
+function setFilterButtonState(button,isActive){
+    button.classList.toggle('summary-label-active',isActive);
+    button.setAttribute('aria-pressed',isActive?'true':'false');
+}
+function applyStatusesToTable(table,activeStatuses,openTable){
+    if(openTable){table.open=true;}
     table.querySelectorAll('tbody tr').forEach(function(row){
         var matches=activeStatuses.length===0||activeStatuses.some(function(filterStatus){
             return statusMatchesFilter(row.dataset.status,filterStatus);
         });
         row.style.display=matches?'':'none';
+    });
+}
+function filterTable(id,trigger){
+    var table=document.getElementById(id);
+    if(!table||!trigger){return;}
+    var isActive=!trigger.classList.contains('summary-label-active');
+    setFilterButtonState(trigger,isActive);
+    var activeStatuses=Array.from(table.querySelectorAll('.summary-label-active')).map(function(label){
+        return label.dataset.status;
+    });
+    applyStatusesToTable(table,activeStatuses,true);
+}
+function filterAllTables(trigger){
+    if(!trigger){return;}
+    var isActive=!trigger.classList.contains('summary-label-active');
+    setFilterButtonState(trigger,isActive);
+    var activeStatuses=Array.from(document.querySelectorAll('.global-filter-button.summary-label-active')).map(function(button){
+        return button.dataset.status;
+    });
+    document.querySelectorAll('details.codeplug-table').forEach(function(table){
+        table.querySelectorAll('.summary-label').forEach(function(button){
+            setFilterButtonState(button,activeStatuses.indexOf(button.dataset.status)!==-1);
+        });
+        applyStatusesToTable(table,activeStatuses,false);
     });
 }
 document.addEventListener('DOMContentLoaded', function(){
@@ -406,7 +428,10 @@ document.addEventListener('DOMContentLoaded', function(){
             openAndJump(link.dataset.jump);
         });
     });
-    document.querySelectorAll('.summary-label').forEach(function(button){
+    document.querySelectorAll('.global-filter-button').forEach(function(button){
+        button.addEventListener('click', function(){filterAllTables(button);});
+    });
+    document.querySelectorAll('.codeplug-table .summary-label').forEach(function(button){
         button.addEventListener('click', function(event){
             event.stopPropagation();
             filterTable(button.dataset.tableId, button);

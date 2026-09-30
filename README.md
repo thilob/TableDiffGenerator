@@ -6,7 +6,7 @@ Das Tool ist für exportierte Tabellenberichte gedacht, bei denen relevante Tabe
 
 Als Vergleichgrundlage für iTM-Codeplugs ist ein Export als Benutzerbericht aus CPS Plus heraus notwendig (Codeplug in CPS Plus öffnen -> Datei -> Export -> Benutzerbericht Strg+J).
 
-Aktuelle Programmversion: `1.0.2`
+Aktuelle Programmversion: `1.0.3`
 
 ## Funktionen
 
@@ -90,6 +90,11 @@ Die vier Tabellenfilter `Übereinstimmungen`, `Abweichungen`, `Fehlende` und
 `Diff` können pro Tabelle einzeln oder gleichzeitig aktiviert werden. Bei
 mehreren aktiven Filtern wird eine Zeile angezeigt, sobald sie zu mindestens
 einem Filter passt. Ohne aktive Filter werden alle Zeilen angezeigt.
+
+Dieselben Tabellenfilter stehen zusätzlich zentral im Kopf des Reports zur
+Verfügung. Eine dort gewählte Kombination wird auf alle Einzeltabellen
+übertragen; die lokalen Schaltflächen zeigen die globale Auswahl ebenfalls an.
+Das Inhaltsverzeichnis ist beim Öffnen des Reports zunächst zugeklappt.
 
 Für PDF und CSV stehen dieselben vier Filter zusätzlich zentral im Kopf des
 Reports zur Verfügung. Sie können einzeln oder als ODER-Kombination ausgewählt
@@ -190,7 +195,7 @@ docker compose -f Docker/docker-compose.ghcr.yaml up -d --force-recreate
 
 Für reproduzierbare Installationen kann der `image`-Eintrag der Compose-Datei
 auf den festen Release-Tag
-`ghcr.io/thilob/tablediffgenerator-web:1.0.2` gesetzt werden.
+`ghcr.io/thilob/tablediffgenerator-web:1.0.3` gesetzt werden.
 
 Gunicorn verwendet den Thread-Worker `gthread`, damit unvollständige oder
 langsame Verbindungen nicht den einzigen synchronen Worker blockieren. Die
@@ -255,7 +260,7 @@ werden und erzeugt Linux-, Windows- und macOS-Archive inklusive SHA256-Dateien.
 Neue Releases sollen die Versionsnummer in `tablediff/metadata.py` erhöhen:
 
 ```python
-APP_VERSION = "1.0.2"
+APP_VERSION = "1.0.3"
 ```
 
 Weitere Details stehen in `RELEASE.md`.

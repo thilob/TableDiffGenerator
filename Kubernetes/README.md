@@ -109,7 +109,7 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --create-namespace \
   -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml \
-  --set image.tag=1.0.2
+  --set image.tag=1.0.3
 ```
 
 Soll bewusst `kubernetes-latest` verfolgt werden, muss das Image erneut gezogen
@@ -384,14 +384,14 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --create-namespace \
   -f Kubernetes/helm/tablediffgenerator/values-ghcr.yaml \
-  --set image.tag=1.0.2
+  --set image.tag=1.0.3
 ```
 
 Ein Beispiel mit einer eigenen Registry:
 
 ```bash
-docker build -f Docker/Dockerfile -t registry.example.com/tablediffgenerator-web:1.0.2 .
-docker push registry.example.com/tablediffgenerator-web:1.0.2
+docker build -f Docker/Dockerfile -t registry.example.com/tablediffgenerator-web:1.0.3 .
+docker push registry.example.com/tablediffgenerator-web:1.0.3
 ```
 
 Installation mit diesem Image:
@@ -401,7 +401,7 @@ helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --create-namespace \
   --set image.repository=registry.example.com/tablediffgenerator-web \
-  --set image.tag=1.0.2
+  --set image.tag=1.0.3
 ```
 
 Wenn die Registry privat ist, wird zusätzlich ein `imagePullSecret` benötigt.
@@ -416,7 +416,7 @@ kubectl -n tablediff create secret docker-registry registry-credentials \
 helm upgrade --install tablediffgenerator Kubernetes/helm/tablediffgenerator \
   --namespace tablediff \
   --set image.repository=registry.example.com/tablediffgenerator-web \
-  --set image.tag=1.0.2 \
+  --set image.tag=1.0.3 \
   --set 'imagePullSecrets[0].name=registry-credentials'
 ```
 
